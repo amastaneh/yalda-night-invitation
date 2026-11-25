@@ -7,7 +7,7 @@ Measured locally on the production static export under `/yalda-night-invitation/
 - `pnpm install` and frozen-lockfile installation.
 - `pnpm lint` with zero warnings.
 - `pnpm typecheck` with strict TypeScript.
-- `pnpm test`: 26 unit/SQLite integration checks covering calendar encoding and UTF-8 ICS folding, token/password primitives, household authorization, revoked/expired sessions, cross-origin protection, rate limits, streamed body limits, RSVP idempotency/revision conflicts/deadlines, companion capacity, promises versus receipts, registry overbooking and guestbook moderation.
+- `pnpm test`: 27 unit/SQLite integration checks covering calendar encoding and UTF-8 ICS folding, token/password primitives, household authorization, revoked/expired sessions, cross-origin protection, rate limits, streamed body limits, RSVP idempotency/revision conflicts/deadlines, companion capacity, promises versus receipts, registry overbooking and guestbook moderation.
 - `pnpm test:e2e`: 24 complete journey checks across desktop Chromium, Android-sized Chromium, tablet Chromium and iPhone-sized WebKit. These exercise household/partial RSVP and edits, optional promise edits and received progress, food cancellation, pomegranate quantity, calendar download, cultural dialogs, admin management/export and anonymous/invalid-link protection.
 - `pnpm test:static`: 4 checks across Chromium and WebKit against the exported Pages base path. Direct invitation and admin navigation, runtime token exchange/removal, real RSVP saves, password login, no private data in static HTML, script-hash CSP, no browser errors, responsive screenshots, and axe scans passed.
 - Production Next export and Worker deployment dry run.

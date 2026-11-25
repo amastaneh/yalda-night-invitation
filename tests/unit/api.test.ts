@@ -255,6 +255,26 @@ describe('RSVP consistency', () => {
   });
 });
 describe('optional gifts and registry', () => {
+  it('orders independent campaigns predictably and withholds a locked mystery', async () => {
+    const c = databaseState.sqlite
+      .prepare('SELECT config FROM gift_campaigns WHERE id=?')
+      .get(campaignId)!;
+    const config = {
+      ...JSON.parse(String(c.config)),
+      product: 'غافلگیری خصوصی',
+      imageUrl: 'https://example.invalid/surprise.webp',
+    };
+    const stamp = new Date().toISOString();
+    databaseState.sqlite
+      .prepare("INSERT INTO gift_campaigns VALUES(?,?,'mystery',?,?,?)")
+      .run('00000000-0000-4000-8000-000000000001', eventId, JSON.stringify(config), stamp, stamp);
+    const data = (await (await request('/invitation', guestSession)).json()) as {
+      campaigns: { kind: string; config: { product: string; imageUrl: string } }[];
+    };
+    expect(data.campaigns.map((c) => c.kind)).toEqual(['console', 'mystery']);
+    expect(data.campaigns[1].config.product).toBe('');
+    expect(data.campaigns[1].config.imageUrl).toBe('');
+  });
   it('keeps promises separate from host-confirmed receipts', async () => {
     expect(
       (await request('/guest/pledge', guestSession, { campaignId, amountCents: 3000 })).status,

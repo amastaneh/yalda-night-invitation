@@ -101,7 +101,7 @@ test('gift promise changes only received progress after host confirms', async ({
   await campaign.getByRole('button', { name: 'اصلاح قول هدیه', exact: true }).click();
   await expect(campaign.getByText(/قول شما:/)).toContainText('۴۰');
   let d = (await (await call(request, '/invitation', guestSession)).json()) as InvitationData;
-  expect(d.campaigns[0].receivedCents).toBe(0);
+  expect(d.campaigns.find((c) => c.kind === 'console')?.receivedCents).toBe(0);
   const overview = await (
     await call(request, `/admin/events/${access.eventId}/overview`, adminSession)
   ).json();
@@ -123,7 +123,7 @@ test('gift promise changes only received progress after host confirms', async ({
       .getByText(/دریافت‌شده:.*۴۰/),
   ).toBeVisible();
   d = (await (await call(request, '/invitation', guestSession)).json()) as InvitationData;
-  expect(d.campaigns[0].receivedCents).toBe(4000);
+  expect(d.campaigns.find((c) => c.id === pledge.campaign_id)?.receivedCents).toBe(4000);
   await call(
     request,
     `/admin/pledges/${pledge.id}`,

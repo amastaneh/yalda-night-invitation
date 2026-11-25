@@ -126,7 +126,7 @@ async function invitation(env: Env, s: Session) {
     db.select().from(tables.guests).where(eq(tables.guests.householdId, h.id)).all(),
     db.select().from(tables.responses).where(eq(tables.responses.householdId, h.id)).get(),
     env.DB.prepare(
-      'SELECT c.*,COALESCE(SUM(p.received_cents),0) received FROM gift_campaigns c LEFT JOIN gift_pledges p ON c.id=p.campaign_id WHERE c.event_id=? GROUP BY c.id',
+      'SELECT c.*,COALESCE(SUM(p.received_cents),0) received FROM gift_campaigns c LEFT JOIN gift_pledges p ON c.id=p.campaign_id WHERE c.event_id=? GROUP BY c.id ORDER BY c.kind,c.created_at,c.id',
     )
       .bind(h.eventId)
       .all(),
