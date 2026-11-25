@@ -1,0 +1,19 @@
+name = "yalda-night-api"
+main = "src/index.ts"
+compatibility_date = "2026-11-24"
+
+[vars]
+ALLOWED_ORIGIN = "http://127.0.0.1:3000"
+ENVIRONMENT = "development"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "yalda"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "../../packages/database/migrations"
+
+[observability]
+enabled = false
+
+[triggers]
+crons = ["17 5 * * *"]

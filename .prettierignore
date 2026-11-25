@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+dist
+.wrangler
+work
+playwright-report
+test-results
+pnpm-lock.yaml
+.local-*.json
+apps/web/next-env.d.ts

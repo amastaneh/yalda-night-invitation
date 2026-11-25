@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+dist/
+.wrangler/
+.env*
+!.env.example
+.dev.vars
+playwright-report/
+test-results/
+coverage/
+*.tsbuildinfo
+work/
+.local-*.json
+apps/api/wrangler.production.json

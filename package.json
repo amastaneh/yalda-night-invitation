@@ -1,0 +1,41 @@
+{
+  "name": "yalda-night",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "pnpm db:migrate && concurrently -k -n API,WEB \"pnpm --filter @yalda/api dev\" \"pnpm --filter @yalda/web dev\"",
+    "build": "pnpm --filter @yalda/web build && node scripts/secure-export.mjs && pnpm --filter @yalda/api build",
+    "preview": "node scripts/serve.mjs",
+    "deploy:config": "node scripts/production-config.mjs",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit && pnpm --filter @yalda/web typecheck",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:static": "playwright test -c playwright.static.config.ts",
+    "db:migrate": "pnpm --filter @yalda/api db:migrate",
+    "db:seed": "node scripts/seed.mjs",
+    "admin:create": "node scripts/admin.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
+    "@cloudflare/workers-types": "latest",
+    "@eslint/js": "9.39.5",
+    "@playwright/test": "latest",
+    "@types/node": "latest",
+    "concurrently": "latest",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.4.6",
+    "lighthouse": "^13.6.0",
+    "prettier": "latest",
+    "typescript": "6.0.3",
+    "typescript-eslint": "latest",
+    "vitest": "latest",
+    "wrangler": "4.168.0"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.4",
+    "zod": "latest"
+  }
+}
