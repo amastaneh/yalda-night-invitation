@@ -117,6 +117,8 @@ export interface RegistryItem {
   mine: number;
 }
 export interface InvitationData {
+  giftChoices: import('./party').GiftChoice[];
+  dailyFortune: import('./party').DailyFortune | null;
   eventId: string;
   event: EventSettings;
   household: {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Vazirmatn, Lalezar, Geist } from 'next/font/google';
 import { Providers } from '@/components/providers';
 import './globals.css';
+import './winter.css';
 const vazir = Vazirmatn({
   subsets: ['arabic', 'latin'],
   variable: '--font-vazir',

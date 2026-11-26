@@ -8,8 +8,10 @@ const access = JSON.parse(readFileSync('.local-access.json', 'utf8')) as {
   eventId: string;
 };
 let adminSession: string, guestSession: string, token: string, householdId: string;
-const origin = 'http://127.0.0.1:3000',
-  api = 'http://127.0.0.1:8787/api';
+const runId = Date.now().toString(36);
+const origin = process.env.E2E_ISOLATED === '1' ? 'http://127.0.0.1:3001' : 'http://127.0.0.1:3000',
+  api =
+    process.env.E2E_ISOLATED === '1' ? 'http://127.0.0.1:8788/api' : 'http://127.0.0.1:8787/api';
 async function call(
   request: APIRequestContext,
   path: string,
@@ -35,7 +37,7 @@ test.beforeAll(async ({ request }, info) => {
   expect(auth.ok()).toBeTruthy();
   adminSession = (await auth.json()).session;
   const h = await call(request, `/admin/events/${access.eventId}/households`, adminSession, {
-    name: `خانوادهٔ آزمون ${info.project.name}`,
+    name: `خانوادهٔ آزمون ${info.project.name} ${runId}`,
     greeting: 'یک شب پر از مهر، کنار شما.',
     plusOnes: 1,
     members: [
@@ -63,13 +65,14 @@ test('opens secure invitation, saves partial attendance, edits RSVP without gift
   request,
 }, info) => {
   await page.goto('/invite/?token=' + token);
-  await expect(page.getByRole('heading', { name: /بلندترین شب/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /بیرون، برف/ })).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: `خانوادهٔ آزمون ${info.project.name}` }),
+    page.getByRole('heading', { name: `خانوادهٔ آزمون ${info.project.name} ${runId}` }),
   ).toBeVisible();
   await expect(page).toHaveURL(/\/invite\/$/);
   const rsvp = page.locator('#rsvp');
   await rsvp.getByRole('button', { name: 'همه با هم می‌آییم' }).click();
+  await rsvp.getByText('پاسخ جداگانه برای اعضای خانواده', { exact: true }).click();
   await rsvp.getByRole('combobox').nth(2).selectOption('maybe');
   await rsvp.getByRole('button', { name: 'ثبت پاسخ دعوت' }).click();
   await expect(rsvp.getByText('پاسخ شما ثبت شد', { exact: true })).toBeVisible();
@@ -77,62 +80,32 @@ test('opens secure invitation, saves partial attendance, edits RSVP without gift
   expect(d.members.map((m) => m.status).sort()).toEqual(['attending', 'attending', 'maybe']);
   expect(d.pledges).toHaveLength(0);
   await rsvp.getByRole('button', { name: 'ویرایش پاسخ' }).click();
+  await rsvp.getByText('پاسخ جداگانه برای اعضای خانواده', { exact: true }).click();
   await rsvp.getByRole('combobox').nth(1).selectOption('declined');
   await rsvp.getByRole('button', { name: 'ثبت پاسخ دعوت' }).click();
   await expect(rsvp.getByText('پاسخ شما ثبت شد', { exact: true })).toBeVisible();
   d = (await (await call(request, '/invitation', guestSession)).json()) as InvitationData;
   expect(d.members.filter((m) => m.status === 'attending')).toHaveLength(1);
 });
-test('gift promise changes only received progress after host confirms', async ({
-  page,
-  request,
-}) => {
+test('reserves at most two gifts and releases them', async ({ page }) => {
   await page.addInitScript(
     (session) => sessionStorage.setItem('yalda-guest', session),
     guestSession,
   );
   await page.goto('/invite/');
-  const campaign = page.locator('.campaign-panel').first();
-  await expect(campaign).toBeVisible();
-  await campaign.getByRole('button', { name: '$30', exact: true }).click();
-  await campaign.getByRole('button', { name: 'ثبت قول هدیه', exact: true }).click();
-  await expect(campaign.getByText(/قول شما:/)).toBeVisible();
-  await campaign.getByRole('button', { name: '$40', exact: true }).click();
-  await campaign.getByRole('button', { name: 'اصلاح قول هدیه', exact: true }).click();
-  await expect(campaign.getByText(/قول شما:/)).toContainText('۴۰');
-  let d = (await (await call(request, '/invitation', guestSession)).json()) as InvitationData;
-  expect(d.campaigns.find((c) => c.kind === 'console')?.receivedCents).toBe(0);
-  const overview = await (
-    await call(request, `/admin/events/${access.eventId}/overview`, adminSession)
-  ).json();
-  const pledge = overview.pledges.find(
-    (p: { household_id: string }) => p.household_id === householdId,
-  );
-  await call(
-    request,
-    `/admin/pledges/${pledge.id}`,
-    adminSession,
-    { amountCents: 4000, receivedCents: 4000 },
-    'PUT',
-  );
-  await page.reload();
+  await page.getByRole('button', { name: 'انتخاب انار', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'لغو انتخاب انار', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'انتخاب شیرینی', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'انتخاب کارت هدیه', exact: true })).toBeDisabled();
   await expect(
-    page
-      .locator('.campaign-panel')
-      .first()
-      .getByText(/دریافت‌شده:.*۴۰/),
-  ).toBeVisible();
-  d = (await (await call(request, '/invitation', guestSession)).json()) as InvitationData;
-  expect(d.campaigns.find((c) => c.id === pledge.campaign_id)?.receivedCents).toBe(4000);
-  await call(
-    request,
-    `/admin/pledges/${pledge.id}`,
-    adminSession,
-    { amountCents: 0, receivedCents: 0 },
-    'PUT',
-  );
+    page.getByRole('button', { name: 'انتخاب پین شیر و خورشید', exact: true }),
+  ).toBeDisabled();
+  await page.getByRole('button', { name: 'لغو انتخاب انار', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'انتخاب کارت هدیه', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'لغو انتخاب شیرینی', exact: true }).click();
 });
-test('calendar download, food commitment, pomegranate quantity and cultural dialogs work', async ({
+
+test('calendar download and persistent daily Hafez fortune work without greeting cards', async ({
   page,
 }) => {
   await page.addInitScript(
@@ -140,29 +113,24 @@ test('calendar download, food commitment, pomegranate quantity and cultural dial
     guestSession,
   );
   await page.goto('/invite/');
-  await page.getByText('به تقویمم اضافه کن', { exact: true }).click();
+  await page.getByText('ثبت در تقویم', { exact: true }).click();
   const [ics] = await Promise.all([
     page.waitForEvent('download'),
     page.getByRole('button', { name: 'Apple Calendar / دریافت ICS' }).click(),
   ]);
   expect(ics.suggestedFilename()).toBe('yalda.ics');
-  const food = page.locator('.registry-row').first();
-  await food.getByRole('spinbutton').fill('1');
-  await food.getByRole('button', { name: 'ثبت', exact: true }).click();
-  await expect(food.getByText(/سهم شما/)).toBeVisible();
-  await food.getByRole('spinbutton').fill('0');
-  await food.getByRole('button', { name: 'اصلاح', exact: true }).click();
-  await expect(food.getByText(/سهم شما/)).toHaveCount(0);
-  await page.getByRole('spinbutton', { name: 'تعداد انار' }).fill('3');
-  await page.getByRole('button', { name: 'من انار می‌آورم', exact: true }).click();
-  await expect(page.getByText('۳ انار به نام شما ثبت شده')).toBeVisible();
-  await page.getByRole('button', { name: 'نیت کردم' }).click();
-  await expect(page.getByRole('dialog')).toContainText('حافظ، غزل ۲۳۲');
+  await page.getByRole('button', { name: 'نیت کردم', exact: true }).click();
+  await expect(page.getByRole('dialog')).toContainText('این فال امروز شماست');
+  const poem = await page.locator('.fortune-poem').innerText();
   await page.getByRole('button', { name: 'بستن', exact: true }).click();
-  await page.getByRole('button', { name: 'کارت تبریک یلدا', exact: true }).click();
-  await expect(page.getByRole('dialog')).toContainText('یلدایتان پر از روشنایی');
+  await page.reload();
+  await page.getByRole('button', { name: 'دیدن فال امروز', exact: true }).click();
+  await expect(page.locator('.fortune-poem')).toHaveText(poem, { useInnerText: true });
+  await expect(page.getByRole('dialog')).toContainText('برای فال بعدی، فردا سر بزنید.');
   await page.getByRole('button', { name: 'بستن', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'کارت تبریک یلدا', exact: true })).toHaveCount(0);
 });
+
 test('RTL layouts have no overflow and no serious accessibility violations', async ({
   page,
 }, info) => {
@@ -171,7 +139,7 @@ test('RTL layouts have no overflow and no serious accessibility violations', asy
     guestSession,
   );
   await page.goto('/invite/');
-  await expect(page.getByRole('heading', { name: /زمان و جای/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'شما کدوم رو میارید؟' })).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   for (const width of [320, 390, 768, 1440, 1920]) {
@@ -197,18 +165,7 @@ test('RTL layouts have no overflow and no serious accessibility violations', asy
     path: `work/screenshots/invitation-${info.project.name}.png`,
     fullPage: true,
   });
-  await page.getByRole('button', { name: 'پوستهٔ روشن' }).click();
-  await expect(page.locator('main.invitation')).toHaveCSS('color', 'rgb(46, 23, 35)');
-  await expect(page.locator('.rsvp-card h3').first()).toHaveCSS('color', 'rgb(46, 23, 35)');
-  await expect(page.locator('.host-line bdi')).toHaveCSS('color', 'rgb(111, 93, 102)');
-  const light = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
-    .analyze();
-  expect(light.violations).toEqual([]);
-  await page.screenshot({
-    path: `work/screenshots/invitation-light-${info.project.name}.png`,
-    fullPage: true,
-  });
+  await expect(page.locator('main.invitation')).toHaveCSS('background-color', 'rgb(229, 230, 222)');
 });
 test('admin can manage a family, view actual statistics and export CSV', async ({ page }, info) => {
   await page.addInitScript(
@@ -221,8 +178,10 @@ test('admin can manage a family, view actual statistics and export CSV', async (
   await page.getByRole('button', { name: 'خانواده‌ها و دعوت‌ها', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'جست‌وجوی مهمان' })
-    .fill(`خانوادهٔ آزمون ${info.project.name}`);
-  const row = page.getByRole('row').filter({ hasText: `خانوادهٔ آزمون ${info.project.name}` });
+    .fill(`خانوادهٔ آزمون ${info.project.name} ${runId}`);
+  const row = page
+    .getByRole('row')
+    .filter({ hasText: `خانوادهٔ آزمون ${info.project.name} ${runId}` });
   await row.getByRole('button', { name: 'ویرایش', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByLabel('پیام اختصاصی', { exact: true }).fill('به امید یک شب پر از شعر و لبخند.');

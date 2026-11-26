@@ -1,5 +1,22 @@
 # Verification
 
+## Winter redesign and Sheets backend — November 26, 2026
+
+- Replaced the long dark guest page with a compact dusk/winter layout, softened light palette, family RSVP, four capacity-limited gift cards and a daily household Hafez fortune. Removed the greeting-card feature from the guest interface.
+- `pnpm test`: 35 checks passed, including two-choice enforcement, the single shared pin, daily-fortune persistence, the Apps Script backend with a mocked Sheets service, formula protection and the Worker proxy. The Sheets mock also covers automatic conversion of day strings into date cells.
+- `E2E_ISOLATED=1 pnpm test:e2e`: all 24 Chromium desktop/mobile/tablet and WebKit journeys passed. They cover RSVP edits, two-choice selection/release, calendar downloads, persistent daily fortunes, removed greeting cards, RTL overflow at 320–1920px, axe accessibility checks and the retained local D1 admin tools. Isolated tests use ports 3001/8788 and do not access the Google sheet.
+- Lint and typecheck passed. Production Next export and Worker dry-run bundle passed. Static base-path tests and Lighthouse were not rerun for this redesign.
+- Verified the user-deployed Apps Script through the local Worker: real gift reservation/readback/release, RSVP write/readback/restore and repeat fortune requests passed. Test gift and RSVP changes were restored. A real Sheets date-coercion issue affecting fortune recognition after reload was found and fixed in the prepared script; deployment of that correction is being verified separately.
+- Manually inspected the final dusk hero, snowfall and gift section in the in-app browser using a Sheets-backed invitation; no browser errors or warnings were captured.
+
+## Dependency refresh — November 26, 2026
+
+- Updated the workspace lockfile to the latest compatible stable releases, including `vitest` 5.1.2, `lucide-react` 1.81.0, `@types/node` 26.6.11 and `@types/react` 19.3.3, plus compatible transitive updates.
+- Retained TypeScript 6.0.3: the installed `typescript-eslint` declares support for TypeScript `>=4.8.4 <6.1.0`. Retained ESLint / `@eslint/js` 9.39.5: the latest import, React and JSX accessibility lint plugins do not yet declare ESLint 10 support. All other direct dependencies are current according to `pnpm outdated -r`.
+- Passed frozen-lockfile installation, lint, typecheck, all 27 unit/integration tests, production static export and Worker dry-run build, and all 24 browser journeys across desktop, mobile, tablet and WebKit. `pnpm audit --prod` reported no known vulnerabilities.
+- Manually checked the homepage layout, theme switch, admin login page, seeded invitation loading and Hafez dialog in the in-app browser. No warnings or errors were captured in that browser check.
+- The static base-path test suite and Lighthouse measurements below were not rerun for this dependency refresh.
+
 Measured locally on the production static export under `/yalda-night-invitation/`, using Node 24, Chrome for Testing 159 and Playwright WebKit 27.2. All guest data used for verification was fictional.
 
 ## Passed checks

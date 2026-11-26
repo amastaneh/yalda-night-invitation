@@ -41,6 +41,7 @@ beforeEach(async () => {
   databaseState = database();
   const db = databaseState.sqlite;
   db.exec(readFileSync('packages/database/migrations/0001_initial.sql', 'utf8'));
+  db.exec(readFileSync('packages/database/migrations/0002_party_choices.sql', 'utf8'));
   eventId = id();
   h1 = id();
   h2 = id();
@@ -131,6 +132,59 @@ beforeEach(async () => {
   ).session;
 });
 afterEach(() => databaseState.sqlite.close());
+describe('compact party choices and daily fortunes', () => {
+  it('allows two choices, rejects a third, and frees capacity on cancellation', async () => {
+    for (const kind of ['pomegranate', 'pastry']) {
+      expect(
+        (await request('/guest/gift-choice', guestSession, { kind, selected: true })).status,
+      ).toBe(200);
+    }
+    expect(
+      (await request('/guest/gift-choice', guestSession, { kind: 'pin', selected: true })).status,
+    ).toBe(409);
+    expect(
+      (await request('/guest/gift-choice', guestSession, { kind: 'pastry', selected: false }))
+        .status,
+    ).toBe(200);
+    expect(
+      (await request('/guest/gift-choice', guestSession, { kind: 'pin', selected: true })).status,
+    ).toBe(200);
+    // Retrying the same selection is idempotent even when both slots are used.
+    expect(
+      (await request('/guest/gift-choice', guestSession, { kind: 'pin', selected: true })).status,
+    ).toBe(200);
+  });
+  it('enforces the single pin across families at the database boundary', () => {
+    const db = databaseState.sqlite;
+    db.prepare('INSERT INTO party_gift_choices VALUES(?,?,?,?)').run(
+      h1,
+      eventId,
+      'pin',
+      new Date().toISOString(),
+    );
+    expect(() =>
+      db
+        .prepare('INSERT INTO party_gift_choices VALUES(?,?,?,?)')
+        .run(h2, eventId, 'pin', new Date().toISOString()),
+    ).toThrow('party_choice_capacity');
+    db.prepare('DELETE FROM party_gift_choices WHERE household_id=?').run(h1);
+    expect(() =>
+      db
+        .prepare('INSERT INTO party_gift_choices VALUES(?,?,?,?)')
+        .run(h2, eventId, 'pin', new Date().toISOString()),
+    ).not.toThrow();
+  });
+  it('persists one fortune per household per Toronto day across repeated requests', async () => {
+    const first = await (await request('/guest/fortune', guestSession, {})).json();
+    const again = await (await request('/guest/fortune', guestSession, {})).json();
+    expect(again).toEqual(first);
+    const invite = (await (await request('/invitation', guestSession)).json()) as {
+      dailyFortune: unknown;
+    };
+    expect(invite.dailyFortune).toEqual(first);
+    expect(databaseState.sqlite.prepare('SELECT COUNT(*) n FROM daily_fortunes').get()!.n).toBe(1);
+  });
+});
 const rsvp = (status = 'attending', revision = 0) => ({
   requestId: id(),
   revision,

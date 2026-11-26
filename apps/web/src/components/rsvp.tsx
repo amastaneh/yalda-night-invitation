@@ -50,7 +50,7 @@ export function Rsvp({
       const next = await onSaved();
       form.reset({ ...values, requestId: crypto.randomUUID(), revision: next.household.revision });
       setSaved(true);
-      toast.success('پاسخ شما با مهر ثبت شد.');
+      toast.success('پاسخ خانواده ثبت شد.');
     } catch (error) {
       setServerError((error as Error).message);
     }
@@ -63,11 +63,8 @@ export function Rsvp({
           <Check size={18} />
           پاسخ شما ثبت شد
         </span>
-        <h3>چه خوب که خبر دادید!</h3>
-        <p className="muted">
-          پاسخ {data.household.name} با مهر به دست میزبان رسید. تا پایان مهلت، می‌توانید آن را تغییر
-          دهید.
-        </p>
+        <h3>خبرتون رسید!</h3>
+        <p className="muted">پاسخ {data.household.name} ثبت شد.</p>
         <Button variant="outline" onClick={() => setSaved(false)}>
           ویرایش پاسخ
         </Button>
@@ -109,35 +106,38 @@ export function Rsvp({
             <Check size={17} />
             همه با هم می‌آییم
           </Button>
-          <div className="member-list">
-            {data.members.map((member, index) => (
-              <div className="member-row" key={member.id}>
-                <label htmlFor={`attendance-${member.id}`}>
-                  <span className="member-avatar">{member.name.slice(0, 1)}</span>
-                  <span>
-                    {member.name}
-                    <small>
-                      {member.kind === 'child' ? 'کودک' : 'بزرگسال'}
-                      {member.isPlusOne ? ' · همراه' : ''}
-                    </small>
-                  </span>
-                </label>
-                <div className="select-wrap">
-                  <select
-                    id={`attendance-${member.id}`}
-                    {...form.register(`members.${index}.status`)}
-                  >
-                    {Object.entries(attendanceLabels).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} />
+          <details className="family-members">
+            <summary>پاسخ جداگانه برای اعضای خانواده</summary>
+            <div className="member-list">
+              {data.members.map((member, index) => (
+                <div className="member-row" key={member.id}>
+                  <label htmlFor={`attendance-${member.id}`}>
+                    <span className="member-avatar">{member.name.slice(0, 1)}</span>
+                    <span>
+                      {member.name}
+                      <small>
+                        {member.kind === 'child' ? 'کودک' : 'بزرگسال'}
+                        {member.isPlusOne ? ' · همراه' : ''}
+                      </small>
+                    </span>
+                  </label>
+                  <div className="select-wrap">
+                    <select
+                      id={`attendance-${member.id}`}
+                      {...form.register(`members.${index}.status`)}
+                    >
+                      {Object.entries(attendanceLabels).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </details>
           <details className="optional-fields">
             <summary>
               ترجیح غذایی یا پیامی برای میزبان دارید؟ <ChevronDown size={17} />
@@ -217,7 +217,7 @@ export function Rsvp({
             {form.formState.isSubmitting ? 'در حال ثبت…' : 'ثبت پاسخ دعوت'}
             <Heart size={18} />
           </Button>
-          <p className="privacy-note">فقط میزبان پاسخ شما را می‌بیند. انتخاب هدیه لازم نیست.</p>
+          <p className="privacy-note">فقط میزبان پاسخ را می‌بیند.</p>
         </fieldset>
       </form>
       {data.members.filter((m) => m.isPlusOne).length < data.household.plusOnes && !closed && (

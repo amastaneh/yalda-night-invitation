@@ -1,5 +1,15 @@
 # Assets and cultural sources
 
+## Current winter invitation
+
+`apps/web/public/images/yalda-dusk.webp` is the current project-specific AI-generated hero, edited with the built-in imagegen tool from the initial bright winter draft following the user's feedback. It depicts a snowy winter dusk outside, warm candlelight and tea inside, pomegranates, watermelon, nuts, pastries, Hafez and Shahnameh. The flag was removed at the user's request. The final 1536-pixel WebP is approximately 412 KiB. This is illustrative generated photography.
+
+`apps/web/public/images/lion-sun-pin.webp` was supplied by the user via [this source image](https://iranopasmigirim.com/images/store/badge-cutout.webp); the guest selector links to the user's [product page](https://iranopasmigirim.com/fa/ribbon). It is an external product asset, not an original generated asset or an endorsement. No purchase is made by the app.
+
+The remaining gift objects, snowfall, accumulated edge snow, floating book and button glint are CSS; animations respect reduced-motion preferences. Five public-domain Hafez couplets link to Ganjoor ghazals [232](https://ganjoor.net/hafez/ghazal/sh232), [255](https://ganjoor.net/hafez/ghazal/sh255), [115](https://ganjoor.net/hafez/ghazal/sh115), [179](https://ganjoor.net/hafez/ghazal/sh179) and [153](https://ganjoor.net/hafez/ghazal/sh153).
+
+## Earlier design (retained source history)
+
 `apps/web/public/images/yalda-hero.webp` is a project-specific AI-generated photographic asset, created with the built-in imagegen tool and converted from its PNG output to a 148 KB WebP using Sharp. It is a photographic rendering, not documentary photography. There are no third-party stock-photo licenses to track for this asset.
 
 Final prompt:

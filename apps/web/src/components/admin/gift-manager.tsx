@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { campaignSchema, money, number } from '../../../../../packages/shared/src';
+import { giftOptions } from '../../../../../packages/shared/src/party';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../ui/dialog';
 
@@ -22,6 +23,21 @@ export function GiftAdmin({
   const [item, setItem] = useState<Registry | 'new' | null>(null);
   return (
     <>
+      <section className="admin-panel">
+        <h2>انتخاب‌های سفرهٔ یلدا</h2>
+        {giftOptions.map((option) => (
+          <div className="admin-receipt-row" key={option.id}>
+            <h3>{option.title}</h3>
+            <p>
+              {data.partyGifts
+                .filter((gift) => gift.kind === option.id)
+                .map((gift) => gift.household_name)
+                .join('، ') || 'هنوز رزرو نشده'}{' '}
+              · ظرفیت {number(option.capacity)}
+            </p>
+          </div>
+        ))}
+      </section>
       <div className="admin-actions">
         <Button size="sm" onClick={() => setCampaign('new')}>
           <Plus size={16} />

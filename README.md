@@ -1,6 +1,10 @@
 # یلدا · Yalda Together
 
-A Persian-first, private invitation platform for a Toronto Yalda gathering. A static Next.js App Router frontend talks to a Cloudflare Worker and D1. No guest accounts, payments, analytics, or gift-card codes.
+A Persian-first, private invitation platform for a Toronto Yalda gathering. A static Next.js App Router frontend talks to a Cloudflare Worker, with either Google Sheets or local D1 for guest data. No guest accounts, payments, analytics, or gift-card codes.
+
+The current guest page uses a warm winter dusk scene, gentle snowfall, compact family RSVP and four optional gift choices. Each family can reserve at most two choices; the pin has one shared slot. Daily Hafez fortunes persist per family and Toronto calendar day. Greeting cards have been removed.
+
+For the simple spreadsheet host workflow, see [Google Sheets setup](docs/GOOGLE-SHEETS.md). In Sheets mode each family occupies one row, and the spreadsheet replaces the legacy D1 admin interface. Event details remain in the script's `EVENT` constant. The existing D1 database is preserved when switching modes.
 
 ## Local development
 
@@ -39,6 +43,8 @@ To override the API URL, copy `.env.example` to `apps/web/.env.local` and retain
 Before the first browser test, run `pnpm exec playwright install chromium webkit` (on Linux CI, add `--with-deps`). Browser tests require seeded local data. They create and delete their own fictional households within the seeded event; use a development database. Screenshots go to the gitignored `work/screenshots/`. After building with the Pages base path, `pnpm test:static` checks the exported routes, CSP and browser journeys in Chromium and WebKit.
 
 ## Host workflow
+
+The steps below describe the legacy D1 host tools. The current guest gift selector uses the fixed options in `packages/shared/src/party.ts`; Sheets mode uses the matching constants in `scripts/google-sheets/Code.gs`. Capacity changes in D1 must also update the trigger in `0002_party_choices.sql` through a new migration.
 
 1. Sign in at `/admin/`. Select or create an event. Enter dates in **America/Toronto**, venue, parking, entrance and host details. New events start closed until you open them.
 2. Add households and adult/child members, or download the CSV import template and review an import. Configure allowed companions.

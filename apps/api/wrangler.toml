@@ -17,3 +17,13 @@ enabled = false
 
 [triggers]
 crons = ["17 5 * * *"]
+
+[env.e2e.vars]
+ALLOWED_ORIGIN = "http://127.0.0.1:3001"
+ENVIRONMENT = "development"
+
+[[env.e2e.d1_databases]]
+binding = "DB"
+database_name = "yalda"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "../../packages/database/migrations"

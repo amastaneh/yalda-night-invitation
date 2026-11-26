@@ -41,6 +41,7 @@ export type ResponseRow = {
   message: string;
 };
 export type Overview = {
+  partyGifts: { kind: string; household_name: string }[];
   commitments: {
     id: string;
     quantity: number;

@@ -13,11 +13,15 @@ import {
   type EventSettings,
 } from '../../../packages/shared/src/index';
 import { id, now, hash, randomToken, passwordHash, equal } from './security';
+import { sheetsRoute } from './sheets';
+import { giftOptions, fortunes, torontoDay } from '../../../packages/shared/src/party';
 
 interface Env {
   DB: D1Database;
   ALLOWED_ORIGIN: string;
   ENVIRONMENT: string;
+  SHEETS_WEBHOOK_URL?: string;
+  SHEETS_WEBHOOK_SECRET?: string;
 }
 type Session = {
   admin_id: string | null;
@@ -149,6 +153,12 @@ async function invitation(env: Env, s: Session) {
   ]);
   return {
     eventId: h.eventId,
+    giftChoices: await partyChoices(env.DB, h.eventId, h.id),
+    dailyFortune: await env.DB.prepare(
+      'SELECT day,fortune_index AS "index" FROM daily_fortunes WHERE household_id=? AND day=?',
+    )
+      .bind(h.id, torontoDay())
+      .first(),
     event: e,
     household: h,
     members,
@@ -169,7 +179,21 @@ async function invitation(env: Env, s: Session) {
     guestbook: guestbook.results,
   };
 }
+async function partyChoices(db: D1Database, eventId: string, householdId: string) {
+  const result = await db
+    .prepare(
+      'SELECT kind,COUNT(*) reserved,MAX(CASE WHEN household_id=? THEN 1 ELSE 0 END) mine FROM party_gift_choices WHERE event_id=? GROUP BY kind',
+    )
+    .bind(householdId, eventId)
+    .all<{ kind: string; reserved: number; mine: number }>();
+  return giftOptions.map((option) => {
+    const row = result.results.find((choice) => choice.kind === option.id);
+    return { kind: option.id, reserved: row?.reserved || 0, mine: !!row?.mine };
+  });
+}
 async function routes(req: Request, env: Env): Promise<Response> {
+  const sheetResponse = await sheetsRoute(req, env, body);
+  if (sheetResponse) return sheetResponse;
   const url = new URL(req.url);
   const path = url.pathname;
   const db = drizzle(env.DB);
@@ -232,6 +256,46 @@ async function routes(req: Request, env: Env): Promise<Response> {
     if (req.method !== 'POST') fail(405, 'روش پشتیبانی نمی‌شود.');
     openEvent(e, path === '/api/guest/rsvp' || path === '/api/guest/plus-one');
     const input = await body(req);
+    if (path === '/api/guest/gift-choice') {
+      if (!e.features.gifts) fail(409, 'انتخاب هدیه بسته است.');
+      const r = z
+        .object({
+          kind: z.enum(['pomegranate', 'gift-card', 'pastry', 'pin']),
+          selected: z.boolean(),
+        })
+        .parse(input);
+      await env.DB.batch([
+        r.selected
+          ? env.DB.prepare('INSERT OR IGNORE INTO party_gift_choices VALUES(?,?,?,?)').bind(
+              s.household_id,
+              s.event_id,
+              r.kind,
+              now(),
+            )
+          : env.DB.prepare('DELETE FROM party_gift_choices WHERE household_id=? AND kind=?').bind(
+              s.household_id,
+              r.kind,
+            ),
+        audit(env.DB, s.household_id!, 'party-gift.update', r.kind),
+      ]);
+      return json({ ok: true });
+    }
+    if (path === '/api/guest/fortune') {
+      if (!e.features.hafez) fail(409, 'فال حافظ غیرفعال است.');
+      const day = torontoDay();
+      const offset = parseInt((await hash(s.household_id!)).slice(0, 8), 16);
+      const index = (Math.floor(Date.parse(day) / 86400000) + offset) % fortunes.length;
+      await env.DB.prepare('INSERT OR IGNORE INTO daily_fortunes VALUES(?,?,?)')
+        .bind(s.household_id, day, index)
+        .run();
+      return json(
+        await env.DB.prepare(
+          'SELECT day,fortune_index AS "index" FROM daily_fortunes WHERE household_id=? AND day=?',
+        )
+          .bind(s.household_id, day)
+          .first(),
+      );
+    }
     if (path === '/api/guest/rsvp') {
       const r = rsvpSchema.parse(input);
       const bodyHash = await hash(JSON.stringify(r));
@@ -483,6 +547,13 @@ async function routes(req: Request, env: Env): Promise<Response> {
           responses: responses.results,
           audit: logs.results,
           commitments: commitments.results,
+          partyGifts: (
+            await env.DB.prepare(
+              'SELECT c.kind,h.name household_name FROM party_gift_choices c JOIN households h ON h.id=c.household_id WHERE c.event_id=? ORDER BY c.kind,h.name',
+            )
+              .bind(eventId)
+              .all()
+          ).results,
         });
       }
       if (suffix === 'export' && req.method === 'GET') {
@@ -820,6 +891,12 @@ const worker = {
       } else if (error instanceof z.ZodError) {
         status = 400;
         message = 'اطلاعات واردشده معتبر نیست. فیلدها را بررسی کنید.';
+      } else if (String(error).includes('party_choice_limit')) {
+        status = 409;
+        message = 'یکی عالیه، دوتا کافیه؛ برای بقیه هم انتخاب بگذارید.';
+      } else if (String(error).includes('party_choice_capacity')) {
+        status = 409;
+        message = 'این گزینه همین الان رزرو شد. یک گزینهٔ دیگر انتخاب کنید.';
       } else if (String(error).includes('registry_capacity')) {
         status = 409;
         message = 'ظرفیت این گزینه تغییر کرده؛ صفحه را تازه کنید.';

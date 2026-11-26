@@ -1,85 +1,49 @@
 'use client';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import * as motion from 'motion/react-m';
 import dynamic from 'next/dynamic';
+import * as motion from 'motion/react-m';
 import {
-  CalendarDays,
-  MapPin,
-  Clock,
-  Car,
-  DoorOpen,
-  Shirt,
-  Heart,
-  Sun,
-  Moon,
+  ArrowDown,
   BookOpen,
-  Share2,
-  Download,
-  Flame,
-  RefreshCw,
-  Mail,
+  CalendarDays,
+  Clock,
+  MapPin,
+  Snowflake,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from './ui/dialog';
-import { Pomegranate } from './pomegranate';
-const Rsvp = dynamic(() => import('./rsvp').then((m) => m.Rsvp));
-const Gifts = dynamic(() => import('./gifts').then((m) => m.Gifts));
-import { api, basePath, saveSession, getSession, download } from '@/lib/api';
+import { api, basePath, getSession, saveSession, download } from '@/lib/api';
 import {
   dateLabel,
   timeLabel,
-  number,
   calendarICS,
   calendarLinks,
+  number,
 } from '../../../../packages/shared/src/format';
+import { fortunes, torontoDay, type DailyFortune } from '../../../../packages/shared/src/party';
 import type { InvitationData } from '../../../../packages/shared/src';
+const Rsvp = dynamic(() => import('./rsvp').then((m) => m.Rsvp));
+const Gifts = dynamic(() => import('./gifts').then((m) => m.Gifts));
 
-function Countdown({ date }: { date: string }) {
-  const [remaining, setRemaining] = useState<number | null>(null);
-  useEffect(() => {
-    const update = () => setRemaining(Math.max(0, Date.parse(date) - Date.now()));
-    update();
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
-  }, [date]);
-  if (remaining === null) return <div className="countdown-placeholder" />;
-  const parts = [
-    Math.floor(remaining / 86400000),
-    Math.floor(remaining / 3600000) % 24,
-    Math.floor(remaining / 60000) % 60,
-    Math.floor(remaining / 1000) % 60,
-  ];
-  return (
-    <div className="countdown" aria-label="شمارش معکوس تا شروع مهمانی">
-      {parts.map((n, i) => (
-        <div key={i}>
-          <span>{number(n).padStart(2, '۰')}</span>
-          <small>{['روز', 'ساعت', 'دقیقه', 'ثانیه'][i]}</small>
-        </div>
-      ))}
-    </div>
-  );
-}
 export function Invitation() {
   const [data, setData] = useState<InvitationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [light, setLight] = useState(false);
-  const [fortune, setFortune] = useState(false);
-  const [card, setCard] = useState(false);
-  const [wish, setWish] = useState('');
-  const [sendingWish, setSendingWish] = useState(false);
-  const reload = useCallback(async () => {
-    const result = await api<InvitationData>('/invitation');
-    setData(result);
-    return result;
-  }, []);
+  const [fortune, setFortune] = useState<DailyFortune | null>(null);
+  const [fortuneOpen, setFortuneOpen] = useState(false);
+  const [drawing, setDrawing] = useState(false);
   const bootstrap = useRef<Promise<InvitationData | null> | null>(null);
+  const reload = useCallback(async () => {
+    const next = await api<InvitationData>('/invitation');
+    setData(next);
+    return next;
+  }, []);
   useEffect(() => {
     let active = true;
-    if (!bootstrap.current) {
+    if (!bootstrap.current)
       bootstrap.current = (async () => {
         const url = new URL(window.location.href);
         const token = url.searchParams.get('token');
@@ -91,13 +55,15 @@ export function Invitation() {
         }
         return getSession('guest') ? api<InvitationData>('/invitation') : null;
       })();
-    }
     void bootstrap.current
       .then((result) => {
-        if (active) setData(result);
+        if (active) {
+          setData(result);
+          setFortune(result?.dailyFortune || null);
+        }
       })
-      .catch((e) => {
-        if (active) setError((e as Error).message);
+      .catch((err) => {
+        if (active) setError((err as Error).message);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -106,429 +72,253 @@ export function Invitation() {
       active = false;
     };
   }, []);
-  async function share() {
+  async function drawFortune() {
+    setDrawing(true);
     try {
-      const shareData = {
-        title: 'شب یلدا',
-        text: `${data?.household.name || 'دوست'} عزیز، بلندترین شب، کنار هم. یلدایتان پر از مهر و روشنایی.`,
-      };
-      if (navigator.share) await navigator.share(shareData);
-      else {
-        await navigator.clipboard.writeText(shareData.text);
-        toast.success('پیام یلدا کپی شد.');
-      }
-    } catch {
-      /* cancelled share */
+      const result = await api<DailyFortune>('/guest/fortune', 'guest', {});
+      setFortune(result);
+      setFortuneOpen(true);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setDrawing(false);
     }
   }
   const event = data?.event;
+  const poem = fortune ? fortunes[fortune.index] : null;
   return (
-    <main className={`invitation ${light ? 'light' : ''}`}>
+    <main className="invitation light winter-page">
+      <div className="winter-atmosphere" aria-hidden="true">
+        {Array.from({ length: 22 }, (_, i) => (
+          <i
+            key={i}
+            style={{
+              left: `${(i * 37) % 100}%`,
+              animationDelay: `-${i * 2.3}s`,
+              animationDuration: `${15 + (i % 9)}s`,
+            }}
+          />
+        ))}
+      </div>
       <a href="#main-content" className="skip-link">
         رفتن به محتوای اصلی
       </a>
-      <header className="site-header">
+      <header className="winter-header winter-width">
         <a className="wordmark" href={`${basePath}/`}>
-          <span className="brand-fruit" aria-hidden="true">
-            ✦
+          <span className="winter-seal" aria-hidden="true">
+            ✺
           </span>{' '}
-          یلدا
-          <span className="wordmark-latin" lang="en">
-            YALDA TOGETHER
+          یلدا{' '}
+          <span className="winter-latin" lang="en">
+            A WINTER GATHERING
           </span>
         </a>
         <nav aria-label="فهرست اصلی">
           {data && (
             <>
-              <a href="#details">قرار ما</a>
-              <a href="#rsvp">پاسخ دعوت</a>
-              {event?.features.gifts && <a href="#gifts">بهانه‌های شادی</a>}
+              <a href="#gifts">سفرهٔ یلدا</a>
+              <a href="#hafez">فال امروز</a>
+              <Button asChild size="sm" variant="outline">
+                <a href="#rsvp">
+                  دعوت شما <ArrowDown size={14} />
+                </a>
+              </Button>
             </>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLight(!light)}
-            aria-label={light ? 'پوستهٔ تیره' : 'پوستهٔ روشن'}
-          >
-            {light ? <Moon size={19} /> : <Sun size={19} />}
-          </Button>
-          {data && (
-            <Button asChild size="sm">
-              <a href="#rsvp">
-                منتظرتونیم <Heart size={15} />
-              </a>
-            </Button>
-          )}
+          {!data && <Snowflake size={22} aria-hidden="true" />}
         </nav>
       </header>
-      <section className="hero" id="main-content">
-        <div className="hero-photo">
+      <section className="winter-hero winter-width" id="main-content">
+        <div className="winter-hero-copy">
+          <span className="winter-eyebrow">
+            <span /> YALDA · TORONTO · {new Date().getFullYear()} <span />
+          </span>
+          {data && <p className="winter-greeting">{data.household.name}، شما دعوتید.</p>}
+          <h1>
+            بیرون، برف.
+            <br />
+            اینجا، <em>یلدا.</em>
+          </h1>
+          <p className="winter-subtitle">انار و شیرینی و شعر؛ دور یک میز.</p>
+          {event ? (
+            <>
+              <p className="winter-date">
+                <CalendarDays size={17} />
+                {dateLabel(event.startsAt)}
+                <span>·</span>
+                {timeLabel(event.startsAt)} <small>تورنتو</small>
+              </p>
+              <Button asChild className="winter-main-cta">
+                <a href="#gifts">
+                  برای سفره چی بیاریم؟ <ArrowDown size={17} />
+                </a>
+              </Button>
+              <a href="#details" className="winter-detail-link">
+                زمان و نشانی مهمانی
+              </a>
+            </>
+          ) : (
+            <div className="winter-gate" role="status">
+              {loading
+                ? 'در حال باز کردن دعوت‌نامه…'
+                : error || 'با لینک اختصاصی خانواده وارد شوید.'}
+            </div>
+          )}
+          <div className="winter-signature">
+            <span aria-hidden="true">✧</span> یک دورهمیِ ایرانی <span className="winter-line" />
+          </div>
+        </div>
+        <motion.div className="winter-hero-art" initial={false} animate={{ opacity: 1 }}>
           <Image
-            src={event?.heroUrl || `${basePath}/images/yalda-hero.webp`}
-            alt="انارهای سرخ، شمع روشن و کتاب شعر بر سفرهٔ شب یلدا"
+            src={`${basePath}/images/yalda-dusk.webp`}
+            alt="سفرهٔ یلدای مهمانی با انار، هندوانه، شیرینی، آجیل، حافظ و شاهنامه در نور گرم غروب کنار پنجرهٔ برفی"
             fill
             priority
-            sizes="100vw"
+            sizes="(max-width: 760px) 100vw, 60vw"
             style={{ objectFit: 'cover' }}
             unoptimized
           />
-        </div>
-        <div className="hero-shade" />
-        <motion.div
-          className="hero-content"
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0 }}
-        >
-          <div className="eyebrow">
-            <span /> THE LONGEST NIGHT, TOGETHER <span />
+          <div className="winter-snow" aria-hidden="true">
+            {Array.from({ length: 14 }, (_, i) => (
+              <i
+                key={i}
+                style={{
+                  left: `${(i * 17) % 100}%`,
+                  animationDelay: `-${i * 1.7}s`,
+                  animationDuration: `${9 + (i % 5)}s`,
+                }}
+              />
+            ))}
           </div>
-          {data && <p className="personal-greeting">{data.household.name} عزیز، شما دعوتید</p>}
-          <h1>
-            بلندترین شب سال،
-            <br />
-            کنار <em>عزیزترین</em> آدم‌ها
-          </h1>
-          <p className="hero-description">
-            {event?.description || 'بهانه‌ای برای کنار هم بودن، خندیدن و ساختن خاطره‌های تازه.'}
-          </p>
-          {event ? (
-            <>
-              <div className="hero-date">
-                <CalendarDays size={17} />
-                {dateLabel(event.startsAt)}
-                <span className="dot-divider">·</span> تورنتو
-              </div>
-              <Button asChild className="hero-cta">
-                <a href="#rsvp">
-                  من هم کنار شمایم <Heart size={18} />
-                </a>
-              </Button>
-              <Countdown date={event.startsAt} />
-            </>
-          ) : (
-            <div className="invitation-gate" role="status">
-              {loading ? (
-                <>
-                  <span className="spinner" /> در حال باز کردن دعوت‌نامه…
-                </>
-              ) : error ? (
-                <>
-                  <p>{error}</p>
-                  <Button variant="outline" onClick={() => window.location.reload()}>
-                    <RefreshCw size={16} />
-                    تلاش دوباره
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <p>یک شب، هزار خاطره، جای شما خالی.</p>
-                  <small>برای دیدن جزئیات و پاسخ به دعوت، لینک اختصاصی میزبان را باز کنید.</small>
-                </>
-              )}
-            </div>
-          )}
+          <div className="winter-photo-label">
+            <Snowflake size={14} />
+            <span lang="en">THE LONGEST NIGHT. A BRIGHTER TABLE.</span>
+          </div>
         </motion.div>
-        <div className="hero-bottom">
-          <span>یک شب به بلندای دوستی</span>
-          <span lang="en">A LITTLE LONGER. A LITTLE CLOSER.</span>
-        </div>
       </section>
       {data && event && (
         <>
-          <section className="intro section-wrap">
-            <div className="section-kicker">
-              <Flame size={16} /> یک شب گرم در دل زمستان
+          <section id="details" className="winter-details winter-width" aria-label="جزئیات مهمانی">
+            <div>
+              <CalendarDays size={21} />
+              <span>
+                <small>قرار ما</small>
+                <strong>{dateLabel(event.startsAt)}</strong>
+                <span>
+                  {timeLabel(event.startsAt)} تا {timeLabel(event.endsAt)} · تورنتو
+                </span>
+              </span>
             </div>
-            <h2>
-              بعضی شب‌ها،
-              <br />
-              <span className="muted">دلمان می‌خواهد تمام نشوند.</span>
-            </h2>
-            <p>
-              {data.household.greeting ||
-                'بیایید بلندترین شب سال را با قصه، خنده و طعم شیرین انار کوتاه کنیم. منتظر دیدارتان هستیم.'}
-            </p>
-          </section>
-          <section id="details" className="details-section section-wrap">
-            <div className="section-heading">
-              <div>
-                <span className="section-kicker">قرارِ باهم بودن</span>
-                <h2>زمان و جای دیدار</h2>
-              </div>
-              <p className="muted">همه‌چیز برای یک شب خاطره‌انگیز</p>
+            <div>
+              <MapPin size={21} />
+              <span>
+                <small>نشانی</small>
+                <strong>{event.venue || 'خانهٔ میزبان'}</strong>
+                <span>{event.address}</span>
+              </span>
             </div>
-            <div className="details-grid">
-              <article className="date-panel">
-                <CalendarDays size={26} />
-                <p className="overline">{event.title}</p>
-                <h3>{dateLabel(event.startsAt)}</h3>
-                <p className="muted gregorian" lang="en" dir="ltr">
-                  {new Intl.DateTimeFormat('en-CA', {
-                    dateStyle: 'full',
-                    timeZone: 'America/Toronto',
-                  }).format(new Date(event.startsAt))}
-                </p>
-                <p className="time-line">
-                  <Clock size={18} /> از {timeLabel(event.startsAt)} تا {timeLabel(event.endsAt)}{' '}
-                  <small>به وقت تورنتو</small>
-                </p>
-                <CalendarOptions data={data} />
-              </article>
-              <article className="venue-panel">
-                <MapPin size={26} />
-                <p className="overline">جایی که منتظرتانیم</p>
-                <h3>{event.venue || 'جزئیات به‌زودی'}</h3>
-                <p>{event.address}</p>
-                <div className="map-links">
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Google Maps
-                  </a>
-                  <a
-                    href={`https://maps.apple.com/?daddr=${encodeURIComponent(event.address)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Apple Maps
-                  </a>
-                </div>
-              </article>
-            </div>
-            <div className="practical-details">
-              {[
-                { Icon: Car, title: 'پارکینگ', text: event.parking },
-                { Icon: DoorOpen, title: 'راهنمای ورود', text: event.entrance },
-                { Icon: Shirt, title: 'حال‌وهوای لباس', text: event.dressCode },
-              ]
-                .filter((i) => i.text)
-                .map(({ Icon, title, text }) => (
-                  <article key={title}>
-                    <Icon size={22} />
-                    <div>
-                      <h4>{title}</h4>
-                      <p>{text}</p>
-                    </div>
-                  </article>
-                ))}
-            </div>
-            <p className="host-line">
-              <Heart size={16} /> به میزبانی {event.host}
-              <span>·</span>
-              <bdi>{event.contact}</bdi>
-            </p>
-          </section>
-          <section id="rsvp" className="rsvp-section">
-            <div className="section-wrap rsvp-grid">
-              <div className="rsvp-intro">
-                <span className="section-kicker">جای شما را نگه داشته‌ایم</span>
-                <h2>
-                  شما هم
-                  <br />
-                  کنار مایید؟
-                </h2>
-                <p className="muted">
-                  فقط چند لحظه تا یک قرار شیرین.
-                  <br />
-                  برای هر نفر جداگانه پاسخ بدهید، یا همه را با هم تأیید کنید.
-                </p>
-                <div className="deadline">
-                  <Clock size={17} />
-                  <span>مهلت پاسخ: {dateLabel(event.deadline)}</span>
-                </div>
-                <div className="collective">
-                  <Pomegranate count={data.attending} />
-                  <div>
-                    <strong>
-                      {number(data.attending)} دانه، {number(data.attending)} لبخند
-                    </strong>
-                    <p className="muted">هر مهمان، یک دانه از انار دورهمی ما.</p>
-                  </div>
-                </div>
-              </div>
-              <Rsvp data={data} onSaved={reload} />
-            </div>
+            <CalendarOptions data={data} />
+            <details className="winter-more-details">
+              <summary>ورود و پارکینگ</summary>
+              <p>{event.parking}</p>
+              <p>{event.entrance}</p>
+              <p>{event.dressCode}</p>
+              <p>
+                {event.host} · {event.contact}
+              </p>
+              <a
+                className="text-link"
+                href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                مسیریابی
+              </a>
+            </details>
           </section>
           {event.features.gifts && <Gifts data={data} reload={reload} />}
-          {(event.features.hafez || event.features.guestbook || event.features.card) && (
-            <section className="culture section-wrap">
-              <div className="section-heading">
-                <div>
-                  <span className="section-kicker">رسم‌های کوچک، خاطره‌های ماندگار</span>
-                  <h2>کمی شعر، کمی آرزو</h2>
-                </div>
-                <BookOpen size={32} />
-              </div>
-              <div className="culture-grid">
-                {event.features.hafez && (
-                  <article className="hafez-panel">
-                    <BookOpen size={26} />
-                    <p className="overline">به نیت یک شب روشن</p>
-                    <h3>فالی از حافظ</h3>
-                    <p className="muted">
-                      لحظه‌ای مکث کن، نیت کن و<br />
-                      دلت را به یک بیت بسپار.
-                    </p>
-                    <Button variant="outline" onClick={() => setFortune(true)}>
-                      نیت کردم
-                    </Button>
-                  </article>
-                )}
-                {event.features.guestbook && (
-                  <article className="guestbook-panel">
-                    <span className="section-kicker">
-                      <Mail size={17} /> آرزویی برای بلندترین شب
-                    </span>
-                    <h3>یک یادگاری از شما</h3>
-                    <form
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        setSendingWish(true);
-                        try {
-                          await api('/guest/guestbook', 'guest', { message: wish });
-                          toast.success('یادگاری شما برای تأیید میزبان فرستاده شد.');
-                          setWish('');
-                        } catch (err) {
-                          toast.error((err as Error).message);
-                        } finally {
-                          setSendingWish(false);
-                        }
-                      }}
-                    >
-                      <label htmlFor="wish" className="sr-only">
-                        آرزوی شما
-                      </label>
-                      <textarea
-                        id="wish"
-                        placeholder="امیدوارم امشب…"
-                        value={wish}
-                        onChange={(e) => setWish(e.target.value)}
-                        required
-                        maxLength={500}
-                        rows={3}
-                      />
-                      <div className="form-footer">
-                        <small className="muted">
-                          پس از تأیید میزبان، بدون نام نمایش داده می‌شود.
-                        </small>
-                        <Button type="submit" size="sm" disabled={sendingWish}>
-                          ثبت یادگاری
-                        </Button>
-                      </div>
-                    </form>
-                    {data.guestbook.slice(0, 3).map((g) => (
-                      <blockquote key={g.id}>{g.message}</blockquote>
-                    ))}
-                  </article>
-                )}
-              </div>
-              {event.features.card && (
-                <div className="share-strip">
-                  <div>
-                    <h3>حال خوب یلدا، برای عزیزانتان</h3>
-                    <p className="muted">یک کارت کوچک، برای یک آرزوی بزرگ.</p>
+          <section className="winter-bottom winter-width">
+            <div id="rsvp" className="winter-rsvp">
+              <span className="winter-eyebrow">01 / دعوت خانوادگی</span>
+              <h2>همه با هم می‌آیید؟</h2>
+              <p className="muted">اگر فرصت کردید، خبر بدهید.</p>
+              <Rsvp data={data} onSaved={reload} />
+            </div>
+            {event.features.hafez && (
+              <div id="hafez" className="winter-hafez">
+                <span className="winter-eyebrow">02 / یک نیت، یک غزل</span>
+                <div className={`fortune-book ${drawing ? 'book-opening' : ''}`} aria-hidden="true">
+                  <div className="fortune-book-cover">
+                    <span>✺</span>
+                    <strong>
+                      دیوان
+                      <br />
+                      حافظ
+                    </strong>
+                    <span>✧</span>
                   </div>
-                  <Button variant="outline" onClick={() => setCard(true)}>
-                    <Share2 size={17} />
-                    کارت تبریک یلدا
-                  </Button>
+                  <span className="book-spark spark-one">✦</span>
+                  <span className="book-spark spark-two">✧</span>
                 </div>
-              )}
-            </section>
-          )}
-          <section className="closing section-wrap">
-            <Heart size={28} />
-            <h2>بهترین هدیه، حضور شماست.</h2>
-            <p>
-              هر طور که بیایید، با دست خالی یا پر از انار،
-              <br />
-              همین که کنار هم باشیم، یلداست.
-            </p>
-            <Button asChild variant="outline">
-              <a href="#rsvp">برگشت به پاسخ دعوت</a>
-            </Button>
+                <h2>حافظ، برای امروز.</h2>
+                <p className="muted">هر خانواده، هر روز یک فال.</p>
+                <Button
+                  variant="outline"
+                  disabled={drawing || event.status !== 'open'}
+                  onClick={drawFortune}
+                >
+                  <BookOpen size={17} />
+                  {drawing
+                    ? 'در حال گشودن دیوان…'
+                    : fortune?.day === torontoDay()
+                      ? 'دیدن فال امروز'
+                      : 'نیت کردم'}
+                </Button>
+                {fortune?.day === torontoDay() && (
+                  <small className="fortune-tomorrow">
+                    <Clock size={13} />
+                    برای فال بعدی، فردا سر بزنید.
+                  </small>
+                )}
+              </div>
+            )}
           </section>
-          <footer className="site-footer">
-            <span className="wordmark">یلدا</span>
-            <p>با عشق، برای بلندترین شب سال</p>
-            <span lang="en">TORONTO · TOGETHER</span>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={async () => {
-                await api('/auth/logout', 'guest', {});
-                sessionStorage.removeItem('yalda-guest');
-                setData(null);
-              }}
-            >
+          <footer className="winter-footer winter-width">
+            <span>یلدا · به میزبانی {event.host}</span>
+            <span lang="en">A LITTLE SNOW. A LITTLE POETRY.</span>
+            <a href={`${basePath}/`} onClick={() => sessionStorage.removeItem('yalda-guest')}>
               خروج از دعوت‌نامه
-            </Button>
+            </a>
           </footer>
         </>
       )}
-      <Dialog open={fortune} onOpenChange={setFortune}>
-        <DialogContent>
-          <DialogTitle className="art-title">به نیت روشنایی</DialogTitle>
-          <DialogDescription>حافظ، غزل ۲۳۲</DialogDescription>
-          <blockquote className="fortune-poem">
-            بر سر آنم که گر ز دست برآید
-            <br />
-            دست به کاری زنم که غصه سر آید
-          </blockquote>
-          <a
-            className="text-link"
-            href="https://ganjoor.net/hafez/ghazal/sh232"
-            target="_blank"
-            rel="noreferrer"
-          >
-            خواندن غزل در گنجور
-          </a>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={card} onOpenChange={setCard}>
-        <DialogContent>
-          <DialogTitle className="art-title">یلدایتان پر از روشنایی</DialogTitle>
-          <DialogDescription>یک آرزوی ساده برای عزیزان شما</DialogDescription>
-          <div className="greeting-card">
-            <p>{data?.household.name} عزیز</p>
-            <Pomegranate count={45} />
-            <h3>
-              شب‌تان بلند،
-              <br />
-              دل‌تان روشن.
-            </h3>
-            <p>یلدا مبارک</p>
-          </div>
-          <Button onClick={share}>
-            <Share2 size={17} /> اشتراک پیام تبریک
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              const recipient = (data?.household.name || 'دوست عزیز').replace(
-                /[&<>"']/g,
-                (c) =>
-                  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]!,
-              );
-              const text = 'یلدایتان پر از مهر و روشنایی';
-              const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080"><rect width="1080" height="1080" fill="#561329"/><circle cx="540" cy="340" r="130" fill="#b91c3c"/><text x="540" y="650" text-anchor="middle" fill="#fff5e6" font-size="48" font-family="serif" direction="rtl">${text}</text><text x="540" y="760" text-anchor="middle" fill="#d4af70" font-size="30">YALDA TOGETHER</text></svg>`;
-              download(
-                svg.replace(
-                  '</svg>',
-                  `<text x="540" y="850" text-anchor="middle" fill="#d4af70" font-size="30" font-family="serif" direction="rtl">${recipient} عزیز</text></svg>`,
-                ),
-                'image/svg+xml',
-                'yalda-card.svg',
-              );
-            }}
-          >
-            <Download size={16} />
-            دریافت کارت
-          </Button>
+      <Dialog open={fortuneOpen} onOpenChange={setFortuneOpen}>
+        <DialogContent className="winter-fortune-dialog">
+          <Sparkles className="fortune-star" size={28} />
+          <DialogTitle>این فال امروز شماست</DialogTitle>
+          <DialogDescription>
+            برای فال بعدی، فردا سر بزنید. روز تازه به وقت تورنتو شروع می‌شود.
+          </DialogDescription>
+          {poem && (
+            <>
+              <blockquote className="fortune-poem">
+                {poem.poem.split('\n').map((line) => (
+                  <span key={line}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+              </blockquote>
+              <a
+                className="text-link"
+                href={`https://ganjoor.net/hafez/ghazal/sh${poem.ghazal}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                غزل {number(poem.ghazal)} · خواندن در گنجور
+              </a>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </main>
@@ -540,13 +330,13 @@ function CalendarOptions({ data }: { data: InvitationData }) {
     <details className="calendar-options">
       <summary className="button button-outline">
         <CalendarDays size={16} />
-        به تقویمم اضافه کن
+        ثبت در تقویم
       </summary>
       <div className="calendar-menu">
-        <a target="_blank" rel="noreferrer" href={links.google}>
+        <a href={links.google} target="_blank" rel="noreferrer">
           Google Calendar
         </a>
-        <a target="_blank" rel="noreferrer" href={links.outlook}>
+        <a href={links.outlook} target="_blank" rel="noreferrer">
           Outlook
         </a>
         <button

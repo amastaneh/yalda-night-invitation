@@ -6,6 +6,8 @@ dist/
 .env*
 !.env.example
 .dev.vars
+.dev.vars.*
+.next-e2e/
 playwright-report/
 test-results/
 coverage/
