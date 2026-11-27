@@ -34,6 +34,14 @@ function initial(): InvitationData {
   };
 }
 export function demoRequest(path: string, input?: unknown): unknown {
+  // A test-only reset link starts the local preview like a first visit.
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('reset') === '1') {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem('yalda-guest');
+    url.searchParams.delete('reset');
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+  }
   let state = initial();
   try {
     const saved = localStorage.getItem(key);

@@ -17,7 +17,7 @@ export const giftOptions = [
   {
     id: 'pastry',
     title: 'شیرینی',
-    note: 'یک بسته؛ لطفاً برای نوع شیرینی هماهنگ کنید.',
+    note: 'یک بسته کوچیک کافیه؛ به ترتیب علاقه مرتب شده.',
     capacity: 4,
     emoji: '🍰',
   },
@@ -32,24 +32,25 @@ export const giftOptions = [
 export type GiftKind = (typeof giftOptions)[number]['id'];
 export const birthdayGift = {
   amount: 25,
-  email: 'amastaneh@gmail.com',
-  shopUrl: 'https://www.amazon.ca/gift-cards/b?node=9230166011',
+  email: 'faye.satari@gmail.com',
+  shopUrl: 'https://www.amazon.ca/dp/B0F2N3HK6N',
   digitalUrl: 'https://www.amazon.ca/dp/B0F2N3HK6N',
 };
 export const giftDetailOptions = {
   pomegranate: ['انار دانه‌شده', 'انار قاچ‌شده', 'ژله انار', 'چیزکیک انار', 'دسر اناری دیگر'],
   pastry: [
-    'باقلوای پسته‌ای',
-    'باسلوق گردویی',
-    'شیرینی ناپلئونی',
+    'شیرینی زبان نرم',
     'شیرینی لطیفه',
+    'شیرینی ناپلئونی',
+    'باسلوق گردویی',
     'شیرینی نخودچی',
-    'سایر شیرینی‌ها',
     'قطاب یزدی',
-    'شیرینی دانمارکی',
+    'سایر شیرینی‌ها',
   ],
 } as const;
 export type GiftDetails = Partial<Record<keyof typeof giftDetailOptions, string>>;
+export const giftDetailLabel = (detail: string) =>
+  detail === 'شیرینی لطیفه' ? 'شیرینی خامه‌ای' : detail;
 export type GiftChoice = { kind: GiftKind; reserved: number; mine: boolean; detail?: string };
 export const fortunes = [
   { poem: 'بر سر آنم که گر ز دست برآید\nدست به کاری زنم که غصه سر آید', ghazal: 232 },

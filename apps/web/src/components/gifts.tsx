@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import Image from 'next/image';
 import * as motion from 'motion/react-m';
 import { Check, Plus, ArrowUpLeft, Gift, X, Copy } from 'lucide-react';
@@ -10,10 +10,12 @@ import {
   birthdayGift,
   giftOptions,
   giftDetailOptions,
+  giftDetailLabel,
   type GiftDetails,
   type GiftKind,
 } from '../../../../packages/shared/src/party';
 import { Button } from './ui/button';
+import { PomegranateBowl } from './pomegranate-bowl';
 
 export function Gifts({
   data,
@@ -54,8 +56,12 @@ export function Gifts({
           <span className="winter-eyebrow">
             <Gift size={15} /> برای سفرهٔ یلدا
           </span>
-          <h2>شما کدوم رو میارید؟</h2>
-          <p className="muted">یکی عالیه، دوتا کافیه. بگذاریم به همه برسه.</p>
+          <h2>لطفاً کادو نیارید</h2>
+          <p className="muted gift-intro-note">
+            حضورتون از هزار هدیه بهتره، با خودتون کلی لبخند و شادی بیارید که لازم داریم.
+            <br />
+            اگه اصرار دارید، یکی از این‌ها عالیه و دوتا واقعاً کافیه 😄 دوستتون داریم ❤️
+          </p>
         </div>
         <div className="gift-selection-count" role="status">
           <span>{number(selected)}</span> از ۲ انتخاب{' '}
@@ -107,13 +113,12 @@ export function Gifts({
                     unoptimized
                   />
                 ) : option.id === 'pomegranate' ? (
-                  <div className="fruit-object">
-                    <span className="fruit-crown">♛</span>
-                    <span className="fruit-seeds">✦</span>
-                  </div>
+                  <PomegranateBowl />
                 ) : option.id === 'gift-card' ? (
-                  <div className="little-gift-card amazon-gift-card" lang="fa" dir="rtl">
-                    <span className="amazon-wordmark">آمازون</span>
+                  <div className="little-gift-card amazon-gift-card" lang="en" dir="ltr">
+                    <span className="amazon-wordmark">
+                      amazon<span>.ca</span>
+                    </span>
                     <svg className="amazon-smile" viewBox="0 0 100 24" fill="none">
                       <path
                         d="M6 4C30 22 64 24 90 7M78 5L94 3L91 17"
@@ -123,8 +128,8 @@ export function Gifts({
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <b className="gift-card-value">۲۵ $</b>
-                    <small>دیجیتال · کانادا</small>
+                    <b className="gift-card-value">$25</b>
+                    <small>eGift Card · CAD</small>
                   </div>
                 ) : (
                   <div className="pastry-object">
@@ -145,29 +150,34 @@ export function Gifts({
                   </legend>
                   <div>
                     {detailOptions.map((detail, detailIndex) => (
-                      <label
-                        key={detail}
-                        className={currentDetail === detail ? 'detail-selected' : ''}
-                      >
-                        <input
-                          type="radio"
-                          name={`gift-detail-${option.id}`}
-                          value={detail}
-                          checked={currentDetail === detail}
-                          onChange={() => {
-                            if (mine) void choose(option.id, true, detail);
-                            else
-                              setDraftDetails((previous) => ({
-                                ...previous,
-                                [detailKind]: detail,
-                              }));
-                          }}
-                        />
-                        <span>{detail}</span>
-                        {option.id === 'pomegranate' && detailIndex === 0 && (
-                          <small>پیشنهادی</small>
+                      <Fragment key={detail}>
+                        <label
+                          className={`${currentDetail === detail ? 'detail-selected' : ''} ${option.id === 'pomegranate' && detailIndex === 0 ? 'detail-primary' : ''} ${option.id === 'pastry' && detailIndex < 4 ? 'detail-preferred' : ''}`}
+                        >
+                          <input
+                            type="radio"
+                            name={`gift-detail-${option.id}`}
+                            value={detail}
+                            checked={currentDetail === detail}
+                            onChange={() => {
+                              if (mine) void choose(option.id, true, detail);
+                              else
+                                setDraftDetails((previous) => ({
+                                  ...previous,
+                                  [detailKind]: detail,
+                                }));
+                            }}
+                          />
+                          <span>{giftDetailLabel(detail)}</span>
+                          {option.id === 'pomegranate' && detailIndex === 0 && (
+                            <small>پیشنهاد اصلی</small>
+                          )}
+                        </label>
+                        {((option.id === 'pomegranate' && detailIndex === 0) ||
+                          (option.id === 'pastry' && detailIndex === 3)) && (
+                          <hr className="gift-detail-divider" aria-hidden="true" />
                         )}
-                      </label>
+                      </Fragment>
                     ))}
                   </div>
                 </fieldset>
@@ -175,13 +185,13 @@ export function Gifts({
               {option.id === 'gift-card' && (
                 <div className="birthday-gift-details">
                   <span className="birthday-gift-label">هدیهٔ گروهی تولد</span>
-                  <p>برای پلی‌استیشن ۵ اسلیم دیسک‌خور، بازی جی‌تی‌ای ۶ و لوازم جانبی.</p>
+                  <p>برای پلی‌استیشن ۵ اسلیم دیسک‌خور و بازی جی‌تی‌ای ۶.</p>
                   <details>
                     <summary>چطور هدیه بدهیم؟</summary>
                     <p>
                       در آمازون کانادا، کارت هدیهٔ دیجیتال با مبلغ ۲۵ دلار کانادا و ارسال ایمیلی را
-                      انتخاب کنید. اعتبار کارت‌ها در یک حساب آمازون جمع می‌شود تا هدیه را با هم تهیه
-                      کنیم.
+                      انتخاب کنید. اعتبار کارت‌ها در این حساب آمازون جمع می‌شود تا هدیه را براش بخرم
+                      😄
                     </p>
                     <p>ایمیل دریافت هدیه:</p>
                     <button

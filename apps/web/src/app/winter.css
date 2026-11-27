@@ -1539,20 +1539,20 @@
 @keyframes candle-flicker {
   0%,
   100% {
-    transform: rotate(-5deg) scale(0.95, 1.08);
-    opacity: 0.85;
+    transform: rotate(-2deg) scale(1.02, 1.04);
+    opacity: 0.68;
   }
   23% {
-    transform: rotate(6deg) scale(1.05, 0.94);
-    opacity: 1;
-  }
-  57% {
-    transform: rotate(-4deg) scale(0.92, 1.15);
+    transform: rotate(3deg) scale(1.08, 0.98);
     opacity: 0.8;
   }
+  57% {
+    transform: rotate(-2.5deg) scale(0.98, 1.06);
+    opacity: 0.62;
+  }
   79% {
-    transform: rotate(3deg) scale(1.02, 0.98);
-    opacity: 1;
+    transform: rotate(1.5deg) scale(1.05, 1);
+    opacity: 0.76;
   }
 }
 @keyframes tea-drift {
@@ -2072,6 +2072,30 @@
 .gift-detail-picker:disabled label {
   cursor: default;
 }
+.gift-detail-picker label.detail-primary {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px 9px;
+  border-color: #7d916e;
+  background: #e0e7d3;
+}
+.gift-detail-picker label.detail-primary.detail-selected {
+  background: #ceddc3;
+  border-color: #52724b;
+}
+.gift-detail-picker .detail-primary small {
+  margin-inline-start: auto;
+  font-size: 9px;
+  font-weight: 400;
+}
+.gift-detail-divider {
+  grid-column: 1 / -1;
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #aab69c;
+  margin: 5px 0;
+}
 .little-gift-card.amazon-gift-card .amazon-wordmark {
   font-family: var(--font-vazir), sans-serif;
   text-align: center;
@@ -2108,4 +2132,291 @@
   height: 15px;
   top: 39px;
   left: 15px;
+}
+.gift-detail-picker label.detail-preferred {
+  font-weight: 600;
+  border-color: #8a9a7c;
+  background: #e0e7d3;
+  min-height: 39px;
+}
+.gift-detail-picker label.detail-preferred.detail-selected {
+  background: #ceddc3;
+  border-color: #52724b;
+}
+.winter-details > div > .venue-address {
+  min-width: 0;
+  text-align: right;
+  align-items: stretch;
+}
+.winter-details .venue-address [dir='ltr'] {
+  text-align: right;
+}
+.winter-section-heading .gift-intro-note {
+  max-width: 660px;
+  line-height: 2;
+}
+.pomegranate-bowl {
+  width: 172px;
+  max-width: 100%;
+  height: 138px;
+  overflow: visible;
+  filter: drop-shadow(0 8px 7px #493e3125);
+}
+.bowl-vessel {
+  transform-origin: 100px 136px;
+  animation: bowl-sway 6s ease-in-out infinite;
+}
+.bowl-glint {
+  animation: bowl-twinkle 3.8s ease-in-out infinite;
+  transform-origin: 61px 50px;
+}
+.bowl-glint-second {
+  animation-delay: -1.9s;
+  transform-origin: 141px 67px;
+}
+.bowl-herb-drift {
+  animation: bowl-herb-settle 4.8s ease-in-out infinite;
+}
+@keyframes bowl-sway {
+  0%,
+  100% {
+    transform: translateY(1px) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(1deg);
+  }
+}
+@keyframes bowl-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.65);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+@keyframes bowl-herb-settle {
+  0%,
+  20% {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+  40% {
+    opacity: 0.8;
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bowl-vessel,
+  .bowl-glint,
+  .bowl-herb-drift {
+    animation: none;
+  }
+}
+.living-photo-snow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.living-photo-snow i {
+  position: absolute;
+  top: -16px;
+  border-radius: 50%;
+  background: #fffdf5;
+  opacity: 0.7;
+  box-shadow: 0 0 5px #fff9e575;
+  animation: living-photo-snowfall 18s linear infinite;
+}
+.living-photo-snow i:nth-child(3n) {
+  filter: blur(1px);
+  opacity: 0.45;
+}
+.photo-scroll-cue {
+  z-index: 3;
+}
+@keyframes living-photo-snowfall {
+  from {
+    transform: translate3d(-18px, -12px, 0);
+  }
+  to {
+    transform: translate3d(45px, calc(100svh + 32px), 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .living-photo-snow {
+    display: none;
+  }
+}
+.little-gift-card.amazon-gift-card .amazon-wordmark {
+  font-family: var(--font-geist), sans-serif;
+  text-align: left;
+  font-size: 24px;
+  letter-spacing: -1px;
+}
+.amazon-wordmark > span {
+  font-size: 15px;
+  font-weight: 400;
+}
+.little-gift-card.amazon-gift-card small {
+  font-family: var(--font-geist), sans-serif;
+  font-size: 6px;
+  letter-spacing: 0.3px;
+}
+.bowl-seed-hop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bowl-seed-hop 4.8s ease-in-out infinite;
+}
+.bowl-powder-sift {
+  animation: bowl-powder-sift 6s ease-in-out infinite;
+}
+@keyframes bowl-seed-hop {
+  0%,
+  15%,
+  85%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.25;
+  }
+  45% {
+    transform: translate(3px, -16px) rotate(20deg);
+    opacity: 1;
+  }
+  65% {
+    transform: translate(-2px, -5px) rotate(-12deg);
+    opacity: 0.9;
+  }
+}
+@keyframes bowl-powder-sift {
+  0%,
+  100% {
+    transform: translateX(-1px);
+  }
+  50% {
+    transform: translate(2px, -1px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bowl-seed-hop,
+  .bowl-powder-sift {
+    animation: none;
+  }
+}
+/* Comfortable reading sizes for all ages. */
+.winter-section-heading .gift-intro-note {
+  font-size: 16px;
+  max-width: 850px;
+}
+.winter-gift-card > p,
+.winter-gift-card .birthday-gift-details p {
+  font-size: 15px;
+  line-height: 1.9;
+}
+.gift-detail-picker legend,
+.birthday-gift-label {
+  font-size: 14px;
+}
+.gift-detail-picker label,
+.gift-detail-picker label.detail-primary {
+  font-size: 15px;
+  min-height: 44px;
+  padding: 10px 8px;
+}
+.gift-detail-picker small,
+.gift-detail-picker .detail-primary small {
+  font-size: 12px;
+}
+.birthday-gift-details summary,
+.gift-email-copy,
+.gift-digital-link {
+  font-size: 14px;
+}
+.gift-availability {
+  font-size: 12px;
+}
+.winter-gift-card .button,
+.winter-gift-card .gift-source {
+  font-size: 15px;
+  min-height: 44px;
+}
+.gift-release,
+.winter-gift-note {
+  font-size: 14px;
+}
+.winter-details strong {
+  font-size: 16px;
+}
+.winter-details span > span,
+.winter-details small,
+.winter-more-details,
+.venue-phones a {
+  font-size: 14px;
+}
+.winter-rsvp > p,
+.rsvp-card .privacy-note,
+.vehicle-toggle {
+  font-size: 15px;
+}
+.vehicle-fields label,
+.vehicle-form > p {
+  font-size: 14px;
+}
+.vehicle-fields input {
+  font-size: 16px;
+}
+@media (max-width: 640px) {
+  .winter-gift-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .winter-gift-card {
+    padding: 20px;
+  }
+  .gift-detail-picker > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .winter-gift-card h3 {
+    font-size: 27px;
+  }
+  .winter-section-heading {
+    align-items: flex-start;
+  }
+  .winter-section-heading .gift-intro-note {
+    font-size: 16px;
+    max-width: none;
+  }
+  .winter-header {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-block: 10px;
+    gap: 8px;
+  }
+  .winter-header .wordmark {
+    font-size: 27px;
+    justify-content: center;
+    width: 100%;
+  }
+  .winter-header nav {
+    width: 100%;
+    justify-content: center;
+    gap: 18px;
+    font-size: 14px;
+  }
+  .winter-header nav .button {
+    font-size: 14px;
+    min-height: 38px;
+  }
+}
+@media (max-width: 359px) {
+  .gift-detail-picker > div {
+    grid-template-columns: 1fr;
+  }
 }

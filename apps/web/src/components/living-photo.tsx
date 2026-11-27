@@ -29,14 +29,17 @@ export function LivingPhoto({ onReady }: { onReady: () => void }) {
         >
           <defs>
             <radialGradient id="candle-glow">
-              <stop stopColor="#ffe6ab" stopOpacity=".65" />
+              <stop stopColor="#ffe6ab" stopOpacity=".42" />
               <stop offset="1" stopColor="#f0b367" stopOpacity="0" />
             </radialGradient>
             <linearGradient id="candle-flame" x1="0" y1="1" x2="0" y2="0">
-              <stop stopColor="#ffb13c" stopOpacity=".65" />
-              <stop offset=".45" stopColor="#fff2c1" stopOpacity=".92" />
-              <stop offset="1" stopColor="#fffbe8" stopOpacity=".55" />
+              <stop stopColor="#ffd08b" stopOpacity=".4" />
+              <stop offset=".45" stopColor="#fff1cd" stopOpacity=".68" />
+              <stop offset="1" stopColor="#fffbe8" stopOpacity=".38" />
             </linearGradient>
+            <filter id="candle-softness" x="-40%" y="-15%" width="180%" height="130%">
+              <feGaussianBlur stdDeviation=".65" />
+            </filter>
             <filter id="tea-softness" x="-80%" y="-30%" width="260%" height="170%">
               <feGaussianBlur stdDeviation="3" />
             </filter>
@@ -58,8 +61,9 @@ export function LivingPhoto({ onReady }: { onReady: () => void }) {
               />
               <path
                 className="candle-flame"
-                d="M0 0 C-8 -9 -6 -28 0 -51 C5 -34 10 -12 0 0Z"
+                d="M0 0 C-14 -7 -13 -26 -4 -43 C-2 -48 -1 -52 0 -55 C3 -46 5 -40 8 -32 C16 -17 14 -5 0 0Z"
                 fill="url(#candle-flame)"
+                filter="url(#candle-softness)"
                 style={{ animationDelay: `-${i * 0.43}s`, animationDuration: `${2.7 + i * 0.4}s` }}
               />
             </g>
@@ -84,6 +88,20 @@ export function LivingPhoto({ onReady }: { onReady: () => void }) {
             </g>
           ))}
         </svg>
+      </div>
+      <div className="living-photo-snow" aria-hidden="true">
+        {Array.from({ length: 28 }, (_, i) => (
+          <i
+            key={i}
+            style={{
+              left: `${(i * 37 + 3) % 100}%`,
+              width: `${2 + (i % 4)}px`,
+              height: `${2 + (i % 4)}px`,
+              animationDelay: `-${i * 1.7}s`,
+              animationDuration: `${13 + (i % 9)}s`,
+            }}
+          />
+        ))}
       </div>
       <a className="photo-scroll-cue" href="#invitation-intro">
         ادامهٔ دعوت‌نامه <ArrowDown size={16} />

@@ -142,7 +142,7 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
           <span className="winter-seal" aria-hidden="true">
             ✺
           </span>{' '}
-          یلدا{' '}
+          دورهمی یلدا{' '}
           <span className="winter-latin" lang="en">
             A WINTER GATHERING
           </span>
@@ -222,9 +222,11 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
             </div>
             <div>
               <MapPin size={21} />
-              <span>
+              <span className="venue-address">
                 <small>نشانی</small>
-                <strong>{event.venue || 'خانهٔ میزبان'}</strong>
+                <strong dir={event.venue.includes('Sloane') ? 'ltr' : undefined}>
+                  {event.venue || 'خانهٔ میزبان'}
+                </strong>
                 <span dir={event.venue.includes('Sloane') ? 'ltr' : undefined}>
                   {event.address}
                 </span>
@@ -294,8 +296,8 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
               <span className="winter-eyebrow">
                 01 / {data.members.length > 1 ? 'دعوت خانوادگی' : 'دعوت شما'}
               </span>
-              <h2>{data.members.length > 1 ? 'همه با هم می‌آیید؟' : 'شما هم می‌آیید؟'}</h2>
-              <p className="muted">اگر فرصت کردید، خبر بدهید.</p>
+              <h2>{data.members.length > 1 ? 'لطفاً همه با هم بیایید' : 'لطفاً شما هم بیایید'}</h2>
+              <p className="muted">لطفاً دکمهٔ ثبت را بزنید.</p>
               <Rsvp data={data} onSaved={reload} />
             </div>
             {event.features.hafez && (

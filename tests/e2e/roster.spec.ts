@@ -38,7 +38,7 @@ test('test invitation is Amir and Faye, persists locally and never touches the g
   );
   await expect(page.getByRole('link', { name: 'خرید از آمازون کانادا' })).toHaveAttribute(
     'href',
-    'https://www.amazon.ca/gift-cards/b?node=9230166011',
+    'https://www.amazon.ca/dp/B0F2N3HK6N',
   );
   await page.getByRole('button', { name: 'انتخاب دسر انار', exact: true }).click();
   await expect(

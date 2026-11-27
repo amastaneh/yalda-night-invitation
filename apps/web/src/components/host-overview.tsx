@@ -2,7 +2,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check, Copy, ExternalLink, RefreshCw, Search } from 'lucide-react';
 import { requestApi } from '@/lib/transport';
-import { giftOptions, type GiftDetails } from '../../../../packages/shared/src/party';
+import {
+  giftOptions,
+  giftDetailLabel,
+  type GiftDetails,
+} from '../../../../packages/shared/src/party';
 import type { Attendance, Vehicle } from '../../../../packages/shared/src';
 
 type Family = {
@@ -194,7 +198,7 @@ export function HostOverview({
                       .map((id) => {
                         const title = giftOptions.find((o) => o.id === id)?.title;
                         const detail = f.giftDetails?.[id as keyof GiftDetails];
-                        return detail ? `${title}: ${detail}` : title;
+                        return detail ? `${title}: ${giftDetailLabel(detail)}` : title;
                       })
                       .join(' · ')
                   : 'هنوز چیزی انتخاب نکرده‌اند'}
