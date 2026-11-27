@@ -1,4 +1,14 @@
 {
   "version": 1,
-  "responses": {}
+  "responses": {
+    "103617": {
+      "statuses": {},
+      "gifts": [
+        "gift-card"
+      ],
+      "revision": 1,
+      "fortune": null,
+      "updatedAt": "2026-11-27T17:53:09.169Z"
+    }
+  }
 }
