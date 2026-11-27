@@ -13,11 +13,9 @@ test('test invitation is Amir and Faye, persists locally and never touches the g
   await expect(
     page.getByRole('heading', { name: 'خانوادهٔ نازنین امیر و Faye', exact: true }),
   ).toBeVisible();
-  await expect(page.getByRole('note')).toContainText('آزمایشی');
-  await page.getByText('مسیریابی و هماهنگی', { exact: true }).click();
   await expect(page.getByRole('link', { name: 'موقعیت ساختمان', exact: true })).toHaveAttribute(
     'href',
-    'https://share.google/G0KWpzsalEQqgeH8B',
+    'https://share.google/USrNNIEMeRyXecRvn',
   );
   await expect(
     page.getByRole('link', { name: 'مسیریابی پارکینگ برج شرقی و غربی', exact: true }),
@@ -42,9 +40,21 @@ test('test invitation is Amir and Faye, persists locally and never touches the g
   );
   await page.getByRole('button', { name: 'انتخاب دسر انار', exact: true }).click();
   await expect(
-    page.getByRole('button', { name: 'لغو انتخاب دسر انار', exact: true }),
+    page.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }),
   ).toBeVisible();
-  await expect(page.getByRole('radio', { name: 'ژله انار', exact: true })).toBeChecked();
+  const dessert = page.locator('.gift-pomegranate');
+  await expect(dessert.locator('.gift-selection-summary')).toContainText('یک ظرف ژله انار');
+  await expect(dessert.getByRole('radio')).toHaveCount(0);
+  await dessert.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }).click();
+  await dessert.getByRole('radio', { name: 'چیزکیک انار', exact: true }).check();
+  await dessert.getByRole('button', { name: 'حفظ انتخاب قبلی', exact: true }).click();
+  await expect(dessert.locator('.gift-selection-summary')).toContainText('یک ظرف ژله انار');
+  await dessert.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }).click();
+  await expect(dessert.getByRole('radio', { name: 'ژله انار', exact: true })).toBeChecked();
+  await dessert.getByRole('radio', { name: 'چیزکیک انار', exact: true }).check();
+  await dessert.getByRole('button', { name: 'ثبت تغییرات دسر انار', exact: true }).click();
+  await expect(dessert.locator('.gift-selection-summary')).toContainText('یک ظرف چیزکیک انار');
+  await expect(dessert.getByRole('radio')).toHaveCount(0);
   await page.getByRole('button', { name: 'همه با هم می‌آییم', exact: true }).click();
   await page.getByRole('checkbox', { name: 'با خودرو می‌آییم و پارکینگ نیاز داریم' }).check();
   await page.getByRole('button', { name: 'ثبت پاسخ دعوت', exact: true }).click();
@@ -61,9 +71,10 @@ test('test invitation is Amir and Faye, persists locally and never touches the g
   );
   await page.reload();
   await expect(
-    page.getByRole('button', { name: 'لغو انتخاب دسر انار', exact: true }),
+    page.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }),
   ).toBeVisible();
-  await expect(page.getByRole('radio', { name: 'ژله انار', exact: true })).toBeChecked();
+  await expect(dessert.locator('.gift-selection-summary')).toContainText('یک ظرف چیزکیک انار');
+  await expect(dessert.getByRole('radio')).toHaveCount(0);
   expect(requests).toEqual([]);
   expect(
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()).violations.filter(

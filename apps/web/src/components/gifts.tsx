@@ -27,18 +27,31 @@ export function Gifts({
   const [pending, setPending] = useState<GiftKind | null>(null);
   const [emailCopied, setEmailCopied] = useState(false);
   const [draftDetails, setDraftDetails] = useState<GiftDetails>({});
-  const [animated, setAnimated] = useState<GiftKind | null>(null);
-  const animationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [editing, setEditing] = useState<Partial<Record<GiftKind, boolean>>>({});
+  const [animated, setAnimated] = useState<
+    Partial<Record<GiftKind, { cycle: number; active: boolean }>>
+  >({});
+  const animationTimers = useRef<Partial<Record<GiftKind, ReturnType<typeof setTimeout>>>>({});
   useEffect(
     () => () => {
-      if (animationTimer.current) clearTimeout(animationTimer.current);
+      Object.values(animationTimers.current).forEach(clearTimeout);
     },
     [],
   );
   function animate(kind: GiftKind) {
-    if (animationTimer.current) clearTimeout(animationTimer.current);
-    setAnimated(kind);
-    animationTimer.current = setTimeout(() => setAnimated(null), 2200);
+    if (animationTimers.current[kind]) clearTimeout(animationTimers.current[kind]);
+    setAnimated((previous) => ({
+      ...previous,
+      [kind]: { cycle: (previous[kind]?.cycle || 0) + 1, active: true },
+    }));
+    animationTimers.current[kind] = setTimeout(
+      () =>
+        setAnimated((previous) => ({
+          ...previous,
+          [kind]: { cycle: previous[kind]?.cycle || 0, active: false },
+        })),
+      2200,
+    );
   }
   const choices = data.giftChoices;
   const selected = choices.filter((choice) => choice.mine).length;
@@ -48,6 +61,7 @@ export function Gifts({
       const wasMine = choices.find((choice) => choice.kind === kind)?.mine;
       await api('/guest/gift-choice', 'guest', { kind, selected, detail });
       await reload();
+      setEditing((previous) => ({ ...previous, [kind]: false }));
       toast.success(
         !selected
           ? 'انتخاب آزاد شد.'
@@ -90,9 +104,19 @@ export function Gifts({
           const mine = !!state?.mine;
           const detailKind = option.id as keyof GiftDetails;
           const detailOptions = giftDetailOptions[detailKind];
+          const locked = mine && !editing[option.id];
           const currentDetail =
-            (mine ? state?.detail : draftDetails[detailKind] || state?.detail) ||
-            detailOptions?.[0];
+            (mine && !editing[option.id]
+              ? state?.detail
+              : draftDetails[detailKind] || state?.detail) || detailOptions?.[0];
+          const selectionLabel =
+            option.id === 'pomegranate'
+              ? `یک ظرف ${giftDetailLabel(state?.detail || giftDetailOptions.pomegranate[0])}`
+              : option.id === 'pastry'
+                ? `یک بسته ${giftDetailLabel(state?.detail || giftDetailOptions.pastry[0])}`
+                : option.id === 'gift-card'
+                  ? 'کارت هدیهٔ دیجیتال آمازون · ۲۵ دلار کانادا'
+                  : 'یک پین شیر و خورشید';
           const remaining = Math.max(0, option.capacity - (state?.reserved || 0));
           const full = !mine && remaining === 0;
           const disabled =
@@ -100,7 +124,7 @@ export function Gifts({
           return (
             <motion.article
               key={option.id}
-              className={`winter-gift-card gift-${option.id} ${mine ? 'gift-chosen' : ''} ${full ? 'gift-full' : ''} ${animated === option.id ? 'gift-animating' : ''}`}
+              className={`winter-gift-card gift-${option.id} ${mine ? 'gift-chosen' : ''} ${locked ? 'gift-confirmed' : ''} ${full ? 'gift-full' : ''} ${animated[option.id]?.active ? 'gift-animating' : ''}`}
               onPointerEnter={(event) => {
                 if (event.pointerType === 'mouse') animate(option.id);
               }}
@@ -122,77 +146,96 @@ export function Gifts({
                       : `${number(remaining)} از ${number(option.capacity)} باقی مانده`}
                 </span>
               </div>
-              <div className="gift-object" aria-hidden="true">
-                {option.id === 'pin' ? (
-                  <Image
-                    src={`${basePath}/images/lion-sun-pin.webp`}
-                    alt=""
-                    width={150}
-                    height={150}
-                    style={{ objectFit: 'contain', width: 'auto', height: '125px' }}
-                    unoptimized
-                  />
-                ) : option.id === 'pomegranate' ? (
-                  <PomegranateBowl />
-                ) : option.id === 'gift-card' ? (
-                  <div className="amazon-gift-scene">
-                    <div className="little-gift-card amazon-gift-card" lang="en" dir="ltr">
-                      <span className="amazon-wordmark">
-                        amazon<span>.ca</span>
+              <motion.div
+                className="gift-object"
+                aria-hidden="true"
+                viewport={{ once: true, amount: 0.7 }}
+                onViewportEnter={() => {
+                  if (window.matchMedia('(max-width: 760px)').matches) animate(option.id);
+                }}
+              >
+                <Fragment key={animated[option.id]?.cycle || 0}>
+                  {option.id === 'pin' ? (
+                    <Image
+                      src={`${basePath}/images/lion-sun-pin.webp`}
+                      alt=""
+                      width={150}
+                      height={150}
+                      style={{ objectFit: 'contain', width: 'auto', height: '125px' }}
+                      unoptimized
+                    />
+                  ) : option.id === 'pomegranate' ? (
+                    <PomegranateBowl />
+                  ) : option.id === 'gift-card' ? (
+                    <div className="amazon-gift-scene">
+                      <div className="little-gift-card amazon-gift-card" lang="en" dir="ltr">
+                        <span className="amazon-wordmark">
+                          amazon<span>.ca</span>
+                        </span>
+                        <svg className="amazon-smile" viewBox="0 0 100 24" fill="none">
+                          <path
+                            d="M6 4C30 22 64 24 90 7M78 5L94 3L91 17"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <b className="gift-card-value">$25</b>
+                        <small>eGift Card · CAD</small>
+                      </div>
+                      <span className="amazon-sparks">
+                        {Array.from({ length: 8 }, (_, i) => (
+                          <i
+                            key={i}
+                            style={
+                              {
+                                '--spark-angle': `${i * 45 + 20}deg`,
+                                animationDelay: `${(i % 3) * 0.09}s`,
+                              } as CSSProperties
+                            }
+                          />
+                        ))}
                       </span>
-                      <svg className="amazon-smile" viewBox="0 0 100 24" fill="none">
-                        <path
-                          d="M6 4C30 22 64 24 90 7M78 5L94 3L91 17"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <b className="gift-card-value">$25</b>
-                      <small>eGift Card · CAD</small>
                     </div>
-                    <span className="amazon-sparks">
-                      {Array.from({ length: 8 }, (_, i) => (
-                        <i
-                          key={i}
-                          style={
-                            {
-                              '--spark-angle': `${i * 45 + 20}deg`,
-                              animationDelay: `${(i % 3) * 0.09}s`,
-                            } as CSSProperties
-                          }
-                        />
-                      ))}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="pastry-object">
-                    <span>✧</span>
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                    <span className="pastry-crumbs">
-                      {Array.from({ length: 7 }, (_, i) => (
-                        <b
-                          key={i}
-                          style={
-                            {
-                              '--crumb-x': `${-38 + i * 13}px`,
-                              '--crumb-y': `${30 + (i % 3) * 10}px`,
-                              animationDelay: `${i * 0.06}s`,
-                            } as CSSProperties
-                          }
-                        />
-                      ))}
-                    </span>
-                  </div>
-                )}
-              </div>
+                  ) : (
+                    <div className="pastry-object">
+                      <span>✧</span>
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <span className="pastry-crumbs">
+                        {Array.from({ length: 7 }, (_, i) => (
+                          <b
+                            key={i}
+                            style={
+                              {
+                                '--crumb-x': `${-38 + i * 13}px`,
+                                '--crumb-y': `${30 + (i % 3) * 10}px`,
+                                animationDelay: `${i * 0.06}s`,
+                              } as CSSProperties
+                            }
+                          />
+                        ))}
+                      </span>
+                    </div>
+                  )}
+                </Fragment>
+              </motion.div>
               <h3>{option.title}</h3>
-              <p>{option.note}</p>
-              {detailOptions && (
+              {!locked && <p>{option.note}</p>}
+              {locked && (
+                <div className="gift-selection-summary" role="status">
+                  <span className="gift-selection-seal" aria-hidden="true">
+                    <Check size={22} />
+                  </span>
+                  <small>انتخاب شما</small>
+                  <strong>{selectionLabel}</strong>
+                  <span>این یکی با شماست؛ ممنون که همراهید ❤️</span>
+                </div>
+              )}
+              {detailOptions && !locked && (
                 <fieldset className="gift-detail-picker" disabled={disabled}>
                   <legend>
                     {option.id === 'pomegranate' ? 'نوع دسر انار' : 'پیشنهادهای شیرینی'}
@@ -209,12 +252,10 @@ export function Gifts({
                             value={detail}
                             checked={currentDetail === detail}
                             onChange={() => {
-                              if (mine) void choose(option.id, true, detail);
-                              else
-                                setDraftDetails((previous) => ({
-                                  ...previous,
-                                  [detailKind]: detail,
-                                }));
+                              setDraftDetails((previous) => ({
+                                ...previous,
+                                [detailKind]: detail,
+                              }));
                             }}
                           />
                           <span>{giftDetailLabel(detail)}</span>
@@ -271,30 +312,63 @@ export function Gifts({
                 </div>
               )}
               <Button
-                variant={mine ? 'secondary' : 'outline'}
+                variant="outline"
                 disabled={disabled}
-                onClick={() => choose(option.id, !mine, !mine ? currentDetail : undefined)}
-                aria-label={mine ? `لغو انتخاب ${option.title}` : `انتخاب ${option.title}`}
+                onClick={() => {
+                  if (locked) {
+                    setDraftDetails((previous) => ({
+                      ...previous,
+                      [detailKind]: state?.detail || detailOptions?.[0],
+                    }));
+                    setEditing((previous) => ({ ...previous, [option.id]: true }));
+                  } else void choose(option.id, true, currentDetail);
+                }}
+                aria-label={
+                  locked
+                    ? `تغییر نظر دربارهٔ ${option.title}`
+                    : mine
+                      ? `ثبت تغییرات ${option.title}`
+                      : `انتخاب ${option.title}`
+                }
               >
                 <span>
                   {pending === option.id
                     ? 'در حال ثبت…'
-                    : mine
-                      ? 'انتخاب شد'
-                      : full
-                        ? 'تکمیل شده'
-                        : 'من میارم'}
+                    : locked
+                      ? 'تغییر نظر'
+                      : mine
+                        ? 'ثبت تغییرات'
+                        : full
+                          ? 'تکمیل شده'
+                          : 'این یکی با ما'}
                 </span>
-                {mine ? <Check size={17} /> : <Plus size={17} />}
+                {locked ? (
+                  <ArrowUpLeft size={17} />
+                ) : mine ? (
+                  <Check size={17} />
+                ) : (
+                  <Plus size={17} />
+                )}
               </Button>
-              {mine && (
+              {mine && editing[option.id] && (
+                <button
+                  type="button"
+                  className="gift-keep-choice"
+                  disabled={pending !== null}
+                  onClick={() => setEditing((previous) => ({ ...previous, [option.id]: false }))}
+                >
+                  حفظ انتخاب قبلی
+                </button>
+              )}
+              {mine && editing[option.id] && (
                 <button
                   className="gift-release"
+                  aria-label={`لغو انتخاب ${option.title}`}
                   onClick={() => choose(option.id, false)}
                   disabled={pending !== null || data.event.status !== 'open'}
                 >
                   <X size={12} />
-                  آزاد کردن انتخاب
+                  انصراف از آوردن این هدیه
                 </button>
               )}
               {option.id === 'pin' && (

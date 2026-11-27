@@ -102,15 +102,17 @@ test('reserves at most two gifts and releases them', async ({ page }) => {
   await page.goto('/invite/');
   await page.getByRole('button', { name: 'انتخاب دسر انار', exact: true }).click();
   await expect(
-    page.getByRole('button', { name: 'لغو انتخاب دسر انار', exact: true }),
+    page.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'انتخاب شیرینی', exact: true }).click();
   await expect(page.getByRole('button', { name: 'انتخاب کارت هدیه', exact: true })).toBeDisabled();
   await expect(
     page.getByRole('button', { name: 'انتخاب پین شیر و خورشید', exact: true }),
   ).toBeDisabled();
+  await page.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }).click();
   await page.getByRole('button', { name: 'لغو انتخاب دسر انار', exact: true }).click();
   await expect(page.getByRole('button', { name: 'انتخاب کارت هدیه', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'تغییر نظر دربارهٔ شیرینی', exact: true }).click();
   await page.getByRole('button', { name: 'لغو انتخاب شیرینی', exact: true }).click();
 });
 

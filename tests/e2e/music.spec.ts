@@ -40,7 +40,7 @@ test('music plays both local files, switches tracks, and respects a deliberate p
     .poll(() => audio.evaluate((el: HTMLAudioElement) => el.duration))
     .toBeGreaterThan(30);
   await player.getByRole('button', { name: 'قطع موسیقی', exact: true }).click();
-  await page.getByRole('link', { name: 'سفرهٔ یلدا', exact: true }).click();
+  await page.getByRole('link', { name: 'برای سفره چی بیاریم؟', exact: true }).click();
   await expect.poll(() => audio.evaluate((el: HTMLAudioElement) => el.paused)).toBe(true);
   await player.getByRole('button', { name: 'تعویض آهنگ' }).click();
   await expect(player).toContainText('خونهٔ ما');

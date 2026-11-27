@@ -141,11 +141,6 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
           />
         ))}
       </div>
-      {invitationSlug === 'test' && (
-        <div className="test-invitation-note" role="note">
-          دعوت‌نامهٔ آزمایشی · انتخاب‌ها فقط در همین مرورگر ذخیره می‌شوند.
-        </div>
-      )}
       <a href="#main-content" className="skip-link">
         رفتن به محتوای اصلی
       </a>
@@ -176,9 +171,6 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
       </header>
       <section className="winter-hero winter-width" id="main-content">
         <div className="winter-hero-copy" id="invitation-intro">
-          <span className="winter-eyebrow">
-            <span /> YALDA · TORONTO · {new Date().getFullYear()} <span />
-          </span>
           {data && (
             <p className="winter-greeting">
               {householdTitle(data.household.name, data.members.length)}، شما دعوتید.
@@ -274,23 +266,10 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
                 </div>
               )}
             </div>
-            <details className="winter-more-details">
-              <summary>مسیریابی و هماهنگی</summary>
-              <p>{event.parking}</p>
-              <p>{event.entrance}</p>
-              <p>{event.dressCode}</p>
-              <p>برای هماهنگی با {partyHosts}:</p>
-              <div className="venue-phones">
-                {event.contact
-                  .split(' · ')
-                  .filter(Boolean)
-                  .map((phone) => (
-                    <a key={phone} dir="ltr" href={`tel:${phone.replace(/[^+0-9]/g, '')}`}>
-                      {phone}
-                    </a>
-                  ))}
-              </div>
-            </details>
+            <p className="venue-arrival-note">
+              برای هماهنگی ورود و پارکینگ، لطفاً پیش از مهمانی خبرمان کنید؛ اگر با خودرو می‌آیید،
+              مشخصاتش را در پاسخ دعوت بنویسید.
+            </p>
           </section>
           {event.features.gifts && <Gifts data={data} reload={reload} />}
           <section className="winter-bottom winter-width">

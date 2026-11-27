@@ -408,6 +408,70 @@
   color: #fff;
   border-color: #35573c;
 }
+.winter-gift-card.gift-confirmed {
+  background: linear-gradient(155deg, #f2f0df, #e0e9d7);
+  border-color: #769274;
+  box-shadow: inset 0 0 0 3px #ffffff38;
+}
+.gift-selection-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 22px 14px;
+  margin-block: 16px;
+  border-radius: 14px;
+  background: #ffffff70;
+  color: #2c5039;
+  animation: winter-reveal 0.45s ease-out both;
+}
+.gift-selection-seal {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #355b46;
+  color: #fff6df;
+}
+.gift-selection-summary small {
+  font-size: 13px;
+}
+.gift-selection-summary strong {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.8;
+}
+.gift-selection-summary > span:last-child {
+  font-size: 13px;
+  line-height: 1.9;
+}
+.winter-gift-card.gift-confirmed > .button {
+  background: transparent;
+  color: #35573c;
+  border-color: #829776;
+}
+.gift-keep-choice {
+  display: block;
+  margin: 10px auto 0;
+  min-height: 44px;
+  padding: 8px 12px;
+  background: none;
+  color: #35573c;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.gift-release {
+  min-height: 44px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gift-selection-summary {
+    animation: none;
+  }
+}
 .gift-source,
 .gift-release {
   display: flex;
@@ -990,8 +1054,8 @@
 .winter-atmosphere i {
   position: absolute;
   top: -20px;
-  width: 4px;
-  height: 4px;
+  width: 4.8px;
+  height: 4.8px;
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 0 5px #ffffff90;
@@ -999,8 +1063,8 @@
   animation: winter-page-snow 20s linear infinite;
 }
 .winter-atmosphere i:nth-child(3n) {
-  width: 7px;
-  height: 7px;
+  width: 8.4px;
+  height: 8.4px;
   filter: blur(1px);
   opacity: 0.65;
 }
@@ -1572,23 +1636,6 @@
     opacity: 0;
     transform: translate(16px, -40px) scaleX(1.25);
   }
-}
-.test-invitation-note {
-  position: fixed;
-  bottom: 16px;
-  inset-inline: 16px;
-  z-index: 45;
-  width: fit-content;
-  max-width: calc(100% - 32px);
-  margin-inline: auto;
-  padding: 8px 16px;
-  border-radius: 18px;
-  color: #f9efda;
-  background: #263d3be8;
-  font-size: 12px;
-  text-align: center;
-  box-shadow: 0 4px 24px #0002;
-  pointer-events: none;
 }
 .host-page {
   min-height: 100svh;
@@ -2426,15 +2473,21 @@
     justify-content: center;
     width: 100%;
   }
+}
+@media (max-width: 760px) {
   .winter-header nav {
+    display: none;
+  }
+  .winter-subtitle {
+    font-size: 12px;
+  }
+  .winter-header .wordmark {
     width: 100%;
     justify-content: center;
-    gap: 18px;
-    font-size: 14px;
   }
-  .winter-header nav .button {
-    font-size: 14px;
-    min-height: 38px;
+  .winter-page .winter-header {
+    min-height: 64px;
+    padding-block: 12px;
   }
 }
 @media (max-width: 359px) {
@@ -2482,9 +2535,6 @@
 .party-music.is-playing > button:first-of-type svg {
   animation: music-sway 2s ease-in-out infinite;
 }
-.winter-page:has(.party-music) .test-invitation-note {
-  bottom: max(80px, calc(env(safe-area-inset-bottom) + 64px));
-}
 @keyframes music-sway {
   50% {
     transform: rotate(-10deg) scale(1.08);
@@ -2498,6 +2548,19 @@
 
 .winter-gift-card.gift-animating .gift-object > * {
   transform: translateY(-6px) rotate(-7deg);
+}
+.gift-pin.gift-animating .gift-object > img {
+  animation: gift-pin-tilt 2.2s ease-in-out both;
+}
+@keyframes gift-pin-tilt {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  30%,
+  70% {
+    transform: translateY(-6px) rotate(-7deg);
+  }
 }
 .bowl-seed-spill {
   opacity: 0;
@@ -2778,6 +2841,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .gift-animating .bowl-seed-spill,
+  .gift-pin.gift-animating .gift-object > img,
   .gift-animating .pastry-object i:first-of-type,
   .gift-animating .pastry-object i:nth-of-type(2),
   .gift-animating .pastry-crumbs b,
@@ -3156,6 +3220,13 @@
   margin-top: 0;
   padding: 0 4px;
   font-size: 14px;
+}
+.venue-arrival-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 2;
 }
 .winter-more-details[open] {
   padding-top: 14px;

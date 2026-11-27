@@ -95,8 +95,8 @@ export function LivingPhoto({ onReady }: { onReady: () => void }) {
             key={i}
             style={{
               left: `${(i * 37 + 3) % 100}%`,
-              width: `${2 + (i % 4)}px`,
-              height: `${2 + (i % 4)}px`,
+              width: `${(2 + (i % 4)) * 1.2}px`,
+              height: `${(2 + (i % 4)) * 1.2}px`,
               animationDelay: `-${i * 1.7}s`,
               animationDuration: `${13 + (i % 9)}s`,
             }}
