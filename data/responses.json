@@ -3,12 +3,10 @@
   "responses": {
     "103617": {
       "statuses": {},
-      "gifts": [
-        "gift-card"
-      ],
-      "revision": 1,
+      "gifts": [],
+      "revision": 2,
       "fortune": null,
-      "updatedAt": "2026-11-27T17:53:09.169Z"
+      "updatedAt": "2026-11-27T17:53:10.632Z"
     }
   }
 }
