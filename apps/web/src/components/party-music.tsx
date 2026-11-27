@@ -20,7 +20,7 @@ export function PartyMusic() {
     const player = audio.current;
     if (!player) return;
     player.src = `${basePath}/audio/${tracks[0].file}`;
-    player.volume = 0.22;
+    player.volume = 0.2;
     const start = () => {
       if (wantsMusic.current && player.paused) void player.play().catch(() => {});
     };

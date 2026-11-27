@@ -33,8 +33,8 @@ export type GiftKind = (typeof giftOptions)[number]['id'];
 export const birthdayGift = {
   amount: 25,
   email: 'faye.satari@gmail.com',
-  shopUrl: 'https://www.amazon.ca/dp/B0F2N3HK6N',
-  digitalUrl: 'https://www.amazon.ca/dp/B0F2N3HK6N',
+  shopUrl: 'https://www.amazon.ca/dp/B0F2N3HK6N?th=1&gpo=25',
+  digitalUrl: 'https://www.amazon.ca/dp/B0F2N3HK6N?th=1&gpo=25',
 };
 export const giftDetailOptions = {
   pomegranate: ['انار دانه‌شده', 'انار قاچ‌شده', 'ژله انار', 'چیزکیک انار', 'دسر اناری دیگر'],
