@@ -1,9 +1,16 @@
 import guests from '../../../config/guests.json';
 import event from '../../../config/event.json';
-import type { Attendance, EventSettings, InvitationData } from '../../shared/src';
+import {
+  vehicleSchema,
+  type Attendance,
+  type EventSettings,
+  type InvitationData,
+  type Vehicle,
+} from '../../shared/src';
 import { giftOptions, torontoDay, type DailyFortune, type GiftKind } from '../../shared/src/party';
 
 export interface FamilyResponse {
+  vehicle?: Vehicle | null;
   statuses: Record<string, Attendance>;
   gifts: GiftKind[];
   revision: number;
@@ -55,6 +62,7 @@ export function overview(state: PartyState) {
         status: response.statuses[name] || 'pending',
       })),
       gifts: response.gifts,
+      vehicle: response.vehicle || null,
       updatedAt: response.updatedAt,
     };
   });
@@ -65,6 +73,7 @@ export function invitationFor(state: PartyState, slug: string): InvitationData {
   const all = overview(state);
   return {
     eventId: 'yalda-2026',
+    vehicle: response.vehicle || null,
     event: event as EventSettings,
     household: {
       id: family.slug,
@@ -147,6 +156,12 @@ export function applyGuestRequest(
     response.statuses = Object.fromEntries(
       people.map((m) => [family.members[Number(m.id) - 1], m.status]),
     );
+    if (Object.hasOwn(body, 'vehicle')) {
+      const parsed = vehicleSchema.nullable().safeParse(body.vehicle);
+      if (!parsed.success)
+        throw new PartyError(400, 'رنگ، برند، مدل و پلاک خودرو را کامل وارد کنید.');
+      response.vehicle = people.every((m) => m.status === 'declined') ? null : parsed.data;
+    }
   } else if (input.path === '/api/guest/fortune') {
     if (response.fortune?.day === torontoDay()) return { data: response.fortune, changed: false };
     response.fortune = {

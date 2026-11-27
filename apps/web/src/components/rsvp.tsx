@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Check, Heart, Plus, Users, ChevronDown } from 'lucide-react';
@@ -41,13 +41,15 @@ export function Rsvp({
       revision: data.household.revision,
       members: data.members.map((m) => ({ id: m.id, status: m.status })),
       ...data.response,
+      vehicle: data.vehicle || null,
     },
   });
+  const vehicle = useWatch({ control: form.control, name: 'vehicle' });
   const closed = data.event.status !== 'open' || Date.parse(data.event.deadline) < currentTime;
   async function submit(values: FormValues) {
     setServerError('');
     try {
-      await api('/guest/rsvp', 'guest', values);
+      await api('/guest/rsvp', 'guest', { ...values, revision: data.household.revision });
       const next = await onSaved();
       form.reset({ ...values, requestId: crypto.randomUUID(), revision: next.household.revision });
       setSaved(true);
@@ -153,6 +155,57 @@ export function Rsvp({
               ))}
             </div>
           </details>
+          <div className="vehicle-form">
+            <label className="vehicle-toggle">
+              <input
+                type="checkbox"
+                checked={vehicle != null}
+                onChange={(e) =>
+                  form.setValue(
+                    'vehicle',
+                    e.target.checked ? { brand: '', model: '', color: '', plate: '' } : null,
+                    { shouldDirty: true },
+                  )
+                }
+              />
+              با خودرو می‌آییم و پارکینگ نیاز داریم
+            </label>
+            <p>برای ثبت پارکینگ، مشخصات خودرو را پیش از مهمانی وارد کنید.</p>
+            {vehicle != null && (
+              <div className="vehicle-fields">
+                {(
+                  [
+                    { key: 'brand', label: 'برند خودرو', placeholder: 'مثلاً Toyota', max: 60 },
+                    { key: 'model', label: 'مدل خودرو', placeholder: 'مثلاً Corolla', max: 80 },
+                    { key: 'color', label: 'رنگ خودرو', placeholder: 'مثلاً سفید', max: 40 },
+                    { key: 'plate', label: 'شمارهٔ پلاک', placeholder: 'ABCD 123', max: 20 },
+                  ] as const
+                ).map((field) => (
+                  <label key={field.key} htmlFor={`vehicle-${field.key}`}>
+                    <span>{field.label}</span>
+                    <input
+                      id={`vehicle-${field.key}`}
+                      aria-label={field.label}
+                      aria-describedby={
+                        form.formState.errors.vehicle?.[field.key]
+                          ? `vehicle-${field.key}-error`
+                          : undefined
+                      }
+                      {...form.register(`vehicle.${field.key}`)}
+                      placeholder={field.placeholder}
+                      maxLength={field.max}
+                      autoComplete="off"
+                      dir={field.key === 'plate' ? 'ltr' : undefined}
+                      aria-invalid={Boolean(form.formState.errors.vehicle?.[field.key])}
+                    />
+                    <small className="error-text" id={`vehicle-${field.key}-error`}>
+                      {form.formState.errors.vehicle?.[field.key]?.message}
+                    </small>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
           {Object.keys(form.formState.errors).length > 0 && (
             <p className="error-text" role="alert">
               اطلاعات واردشده را بررسی کنید.

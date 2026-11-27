@@ -3,13 +3,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { Check, Copy, ExternalLink, RefreshCw, Search } from 'lucide-react';
 import { requestApi } from '@/lib/transport';
 import { giftOptions } from '../../../../packages/shared/src/party';
-import type { Attendance } from '../../../../packages/shared/src';
+import type { Attendance, Vehicle } from '../../../../packages/shared/src';
 
 type Family = {
   slug: string;
   name: string;
   members: { name: string; status: Attendance }[];
   gifts: string[];
+  vehicle?: Vehicle | null;
 };
 type Guest = { slug: string; name: string; members: string[] };
 const labels: Record<Attendance, string> = {
@@ -38,6 +39,7 @@ export function HostOverview({
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
   const [query, setQuery] = useState('');
+  const [onlyVehicles, setOnlyVehicles] = useState(false);
   const [copied, setCopied] = useState('');
   const reload = useCallback(() => {
     return requestApi<{ families: Family[]; writable: boolean }>(
@@ -138,11 +140,18 @@ export function HostOverview({
           <Search size={18} />
           <input
             aria-label="جست‌وجوی مهمان"
-            placeholder="نام مهمان یا شمارهٔ دعوت…"
+            placeholder="نام، شمارهٔ دعوت یا پلاک…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </label>
+        <button
+          className="host-button"
+          aria-pressed={onlyVehicles}
+          onClick={() => setOnlyVehicles((value) => !value)}
+        >
+          خودروها ({families.filter((f) => f.vehicle).length.toLocaleString('fa')})
+        </button>
         <button
           className="host-button"
           onClick={() =>
@@ -157,8 +166,12 @@ export function HostOverview({
       </div>
       <div className="host-families">
         {families
-          .filter((f) =>
-            `${f.name} ${f.slug} ${f.members.map((m) => m.name).join(' ')}`.includes(query.trim()),
+          .filter(
+            (f) =>
+              (!onlyVehicles || f.vehicle) &&
+              `${f.name} ${f.slug} ${f.members.map((m) => m.name).join(' ')} ${f.vehicle?.plate || ''} ${f.vehicle?.brand || ''} ${f.vehicle?.model || ''}`.includes(
+                query.trim(),
+              ),
           )
           .map((f) => (
             <article className="host-family" key={f.slug}>
@@ -179,6 +192,15 @@ export function HostOverview({
                   ? f.gifts.map((id) => giftOptions.find((o) => o.id === id)?.title).join(' · ')
                   : 'هنوز چیزی انتخاب نکرده‌اند'}
               </p>
+              {f.vehicle && (
+                <div className="host-vehicle">
+                  <strong>خودرو برای پارکینگ</strong>
+                  <span>
+                    {f.vehicle.brand} · {f.vehicle.model} · {f.vehicle.color}
+                  </span>
+                  <b dir="ltr">{f.vehicle.plate}</b>
+                </div>
+              )}
               <div className="host-family-link">
                 <a dir="ltr" href={url(f.slug)} target="_blank" rel="noreferrer">
                   /invite/{f.slug}

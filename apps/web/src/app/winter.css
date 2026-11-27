@@ -1825,3 +1825,202 @@
 .host-spinning {
   animation: host-spin 1s linear infinite;
 }
+.winter-details .venue-thumbnail {
+  width: 80px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+.venue-phones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-block: 12px;
+}
+.venue-phones a {
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 7px 14px;
+  font-size: 13px;
+  color: var(--foreground);
+}
+.vehicle-form {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 18px;
+}
+.vehicle-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.vehicle-toggle input {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  accent-color: #456b5c;
+  flex-shrink: 0;
+}
+.vehicle-form > p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 8px 0 12px;
+}
+.vehicle-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.vehicle-fields label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  font-size: 12px;
+}
+.vehicle-fields input {
+  width: 100%;
+  font-size: 13px;
+  background: #fffdf6;
+  color: #283e36;
+  border-color: #bcc9ba;
+}
+.vehicle-fields small:empty {
+  display: none;
+}
+.host-vehicle {
+  display: grid;
+  gap: 4px;
+  margin-top: 14px;
+  background: #edf1e8;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.host-vehicle > strong {
+  font-size: 11px;
+  color: #65736b;
+  font-weight: 400;
+}
+.host-vehicle b {
+  width: fit-content;
+  margin-top: 5px;
+  background: #fff;
+  border: 1px solid #b7c3b8;
+  border-radius: 5px;
+  padding: 4px 12px;
+  letter-spacing: 1px;
+  font:
+    600 14px var(--font-geist),
+    sans-serif;
+}
+.little-gift-card.amazon-gift-card {
+  background: linear-gradient(130deg, #243345, #121b26);
+  color: #fff;
+  border: 1px solid #485566;
+  transform: rotate(-5deg);
+}
+.little-gift-card.amazon-gift-card .amazon-wordmark {
+  font-family: var(--font-geist), sans-serif;
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.amazon-wordmark > span {
+  font-size: 17px;
+  font-weight: 400;
+}
+.little-gift-card.amazon-gift-card > .amazon-smile {
+  width: 76px;
+  height: 20px;
+  color: #ff9900;
+  position: absolute;
+  top: 45px;
+  left: 17px;
+  right: auto;
+}
+.amazon-gift-card .gift-card-value {
+  color: #fff;
+}
+.little-gift-card.amazon-gift-card small {
+  position: absolute;
+  bottom: 9px;
+  left: 12px;
+  margin: 0;
+  color: #e4e8ec;
+  font-size: 7px;
+  letter-spacing: 0.5px;
+}
+.birthday-gift-details {
+  margin-block: 8px 16px;
+  font-size: 11px;
+  text-align: start;
+}
+.birthday-gift-label {
+  display: inline-block;
+  font-size: 10px;
+  color: #735322;
+  border-bottom: 1px solid #73532255;
+  padding-bottom: 3px;
+  margin-bottom: 7px;
+}
+.winter-gift-card .birthday-gift-details p {
+  min-height: 0;
+  font-size: 11px;
+  line-height: 1.9;
+  margin-block: 4px 8px;
+}
+.birthday-gift-details details {
+  margin-block: 8px;
+  color: var(--muted);
+}
+.birthday-gift-details summary {
+  cursor: pointer;
+  color: #304d3d;
+  font-size: 11px;
+}
+.gift-email-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px;
+  font-size: 10px;
+  cursor: pointer;
+  color: #304d3d;
+}
+.gift-digital-link {
+  display: block;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 10px;
+  color: #4b5b4b;
+  margin-top: 8px;
+}
+.gift-gift-card > .gift-source {
+  display: inline-flex;
+  justify-content: center;
+  background: #ff9900;
+  color: #17212e;
+  border-radius: 100px;
+  padding: 8px 12px;
+  font-weight: 600;
+}
+@media (max-width: 480px) {
+  .winter-details .venue-thumbnail {
+    width: 64px;
+    height: 56px;
+  }
+  .vehicle-fields {
+    grid-template-columns: 1fr;
+  }
+}

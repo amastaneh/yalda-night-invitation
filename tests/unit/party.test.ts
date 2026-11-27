@@ -34,6 +34,35 @@ function memoryStore() {
   return { store, read: () => state };
 }
 describe('JSON guest invitations', () => {
+  it('validates and returns a household vehicle to its invitation and host view', () => {
+    const state = emptyState(),
+      slug = guests[0].slug;
+    const request = {
+      path: '/api/guest/rsvp',
+      method: 'POST',
+      session: slug,
+      body: {
+        revision: 0,
+        members: [
+          { id: '1', status: 'attending' },
+          { id: '2', status: 'pending' },
+        ],
+        vehicle: { brand: 'Toyota', model: 'Corolla', color: 'سفید', plate: 'TEST 123' },
+      },
+    };
+    applyGuestRequest(state, request);
+    expect(invitationFor(state, slug).vehicle).toEqual(request.body.vehicle);
+    expect(overview(state)[0].vehicle).toEqual(request.body.vehicle);
+    expect(invitationFor(state, guests[1].slug).vehicle).toBeNull();
+    expect(() =>
+      applyGuestRequest(state, {
+        ...request,
+        body: { ...request.body, revision: 1, vehicle: { ...request.body.vehicle, plate: '' } },
+      }),
+    ).toThrow('کامل');
+    applyGuestRequest(state, { ...request, body: { ...request.body, revision: 1, vehicle: null } });
+    expect(overview(state)[0].vehicle).toBeNull();
+  });
   it('accepts the external request host behind Next and keeps the host API readonly', async () => {
     vi.stubGlobal(
       'fetch',

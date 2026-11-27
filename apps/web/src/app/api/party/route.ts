@@ -6,6 +6,7 @@ import {
   type PartyInput,
 } from '../../../../../../packages/party/src/state';
 import { githubStore, transact } from '../../../../../../packages/party/src/github';
+import { encryptionReady } from '../../../../../../packages/party/src/encryption';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
       return respond(200, {
         families: overview(state),
         writable: Boolean(process.env.GITHUB_TOKEN),
+        vehicleStorageReady: encryptionReady(),
       });
     }
     return respond(200, await transact(store, (state) => applyGuestRequest(state, input)));

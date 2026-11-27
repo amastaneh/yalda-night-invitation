@@ -1,4 +1,5 @@
 import { emptyState, PartyError, type PartyState } from './state';
+import { encodeState, decodeState } from './encryption';
 
 export interface StateSnapshot {
   state: PartyState;
@@ -27,9 +28,7 @@ export function githubStore(token?: string): StateStore {
       if (response.status === 404) return { state: emptyState() };
       if (!response.ok) throw new PartyError(503, 'خواندن اطلاعات مهمانی از گیت‌هاب ممکن نشد.');
       const file = (await response.json()) as { content: string; sha: string };
-      const state = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')) as PartyState;
-      if (state.version !== 1 || !state.responses || typeof state.responses !== 'object')
-        throw new PartyError(503, 'ساختار فایل اطلاعات معتبر نیست.');
+      const state = decodeState(JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')));
       return { state, sha: file.sha };
     },
     async save(state, sha) {
@@ -46,7 +45,9 @@ export function githubStore(token?: string): StateStore {
           branch,
           message: 'Update party responses [skip ci]',
           sha,
-          content: Buffer.from(JSON.stringify(state, null, 2) + '\n').toString('base64'),
+          content: Buffer.from(JSON.stringify(encodeState(state), null, 2) + '\n').toString(
+            'base64',
+          ),
         }),
       });
       if (response.status === 409 || response.status === 422) return false;

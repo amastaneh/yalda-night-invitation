@@ -60,6 +60,13 @@ export const householdSchema = z.object({
   plusOnes: z.number().int().min(0).max(5),
   members: z.array(memberSchema).min(1).max(20),
 });
+export const vehicleSchema = z.object({
+  brand: z.string().trim().min(1, 'برند خودرو را بنویسید.').max(60),
+  model: z.string().trim().min(1, 'مدل خودرو را بنویسید.').max(80),
+  color: z.string().trim().min(1, 'رنگ خودرو را بنویسید.').max(40),
+  plate: z.string().trim().min(1, 'شمارهٔ پلاک را بنویسید.').max(20),
+});
+export type Vehicle = z.infer<typeof vehicleSchema>;
 export const rsvpSchema = z.object({
   requestId: z.uuid(),
   revision: z.number().int().min(0),
@@ -73,6 +80,7 @@ export const rsvpSchema = z.object({
   allergies: z.string().max(1000),
   message: z.string().max(2000),
   contact: z.string().max(200),
+  vehicle: vehicleSchema.nullable().optional(),
 });
 export const campaignSchema = z.object({
   name: z.string().min(1).max(150),
@@ -119,6 +127,7 @@ export interface RegistryItem {
   mine: number;
 }
 export interface InvitationData {
+  vehicle?: Vehicle | null;
   giftChoices: import('./party').GiftChoice[];
   dailyFortune: import('./party').DailyFortune | null;
   eventId: string;

@@ -2,7 +2,7 @@
 
 ## Current GitHub JSON mode
 
-At the host's request, invitation slugs are six-digit numbers in project JSON, and the readonly host dashboard uses a longer unlisted path. These are simple sharing links rather than strong authentication. Only the server route uses `GITHUB_TOKEN`; it is never returned to the client or included in public build variables. The token is scoped to this repository's Contents permission. Public repository JSON remains publicly readable.
+At the host's request, invitation slugs are six-digit numbers in project JSON, and the readonly host dashboard uses a longer unlisted path. These are simple sharing links rather than strong authentication. Only the server route uses `GITHUB_TOKEN`; it is never returned to the client or included in public build variables. The token is scoped to this repository's Contents permission. The roster remains public configuration. Responses, including vehicle plates, are encrypted with AES-256-GCM using the server-only `PARTY_DATA_ENCRYPTION_KEY` and fresh random nonces. Vehicle writes fail if encryption is unavailable. Legacy plaintext responses remain readable and are encrypted on their next successful write. The viewing links still grant API access; encryption protects the stored repository file, not access by a link holder.
 
 Guest mutation requests validate household membership, statuses, revisions and gift limits. GitHub SHA preconditions and bounded retries re-evaluate capacity after concurrent saves. Responses and API fetches use no-store. The test invitation remains local to the browser and does not affect the roster or shared capacities. The sections below describe the retained historical backends; production no longer uses their storage or admin editing interface.
 

@@ -23,6 +23,7 @@ function initial(): InvitationData {
       status: 'pending',
     })),
     response: { message: '', allergies: '', dietary: '', contact: '' },
+    vehicle: null,
     attending: 0,
     campaigns: [],
     pledges: [],
@@ -41,11 +42,13 @@ export function demoRequest(path: string, input?: unknown): unknown {
     /* Start a fresh preview if storage is unavailable. */
   }
   if (state.dailyFortune?.day !== torontoDay()) state.dailyFortune = null;
+  state.event = structuredClone(event) as EventSettings;
   const body = input as {
     kind: string;
     selected: boolean;
     members: { id: string; status: Attendance }[];
     revision: number;
+    vehicle?: InvitationData['vehicle'];
   };
   if (path === '/auth/invite') return { session: 'test', invitation: state };
   if (path === '/invitation') return state;
@@ -62,6 +65,9 @@ export function demoRequest(path: string, input?: unknown): unknown {
       m.status = body.members.find((p) => p.id === m.id)?.status || m.status;
     });
     state.attending = state.members.filter((m) => m.status === 'attending').length;
+    state.vehicle = state.members.every((m) => m.status === 'declined')
+      ? null
+      : body.vehicle || null;
     state.household.revision++;
   } else if (path === '/guest/fortune') {
     state.dailyFortune ||= {

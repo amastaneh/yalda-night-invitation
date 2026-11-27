@@ -1,5 +1,13 @@
 # Verification
 
+## Venue, vehicles and Amazon birthday gifts — November 27, 2026
+
+- Added the supplied Sloane East Tower address, Floor 2 / Grid, both click-to-call numbers, maps directions and a small 33KB building thumbnail. The original hero remains unchanged.
+- Optional RSVP vehicle registration validates brand, model, color and plate, persists per household and appears in the readonly host view with a vehicle filter and plate search. RSVP submits the latest loaded revision after gift changes.
+- Added authenticated AES-256-GCM encryption for GitHub response JSON. Missing/invalid keys block vehicle writes; old response JSON remains readable. Tests cover Unicode round-trips, fresh nonces, invalid/tampered ciphertext, failed-key behavior, encrypted GitHub writes and decrypted readback.
+- Replaced Best Buy with Amazon.ca CAD 25 eGift, confirmed on the official product page, plus the supplied recipient email, group-gift purpose, Canadian purchase links and charcoal/orange presentation. Updated pin and pastry copy.
+- All 64 unit/integration tests passed, lint and typecheck passed. The 36 existing browser journeys passed. After fixing a vehicle input accessible name during validation, all eight updated desktop/mobile/tablet/WebKit checks passed, including vehicle persistence, Amazon/venue details, host vehicle display/filter, accessibility and 320–1440px overflow checks.
+
 ## JSON roster and readonly host dashboard — November 27, 2026
 
 - Added the supplied 18 families (37 members) in `config/guests.json`, each with a unique six-digit invitation path. A separate local-only `/invite/test` uses Amir and Faye and makes no guest API requests.

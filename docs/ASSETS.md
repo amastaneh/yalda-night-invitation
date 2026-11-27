@@ -2,6 +2,10 @@
 
 ## Current winter invitation
 
+`apps/web/public/images/sloane-east-tower.webp` is the user-supplied [Sloane exterior photograph](https://s3.amazonaws.com/lws_lift/fitzrovia_sloane/panels/amenities-gallery-images/files/1152/1788190280757_05__Sloane_Exteriors_Low_Res.jpg), resized to 480px and compressed to a 33KB WebP for the small venue thumbnail. It is not a generated image.
+
+The current birthday gift uses Amazon-inspired charcoal/orange typography and a small SVG smile, with a CAD 25 amount. On November 27, 2026, Amazon.ca's [official eGift product](https://www.amazon.ca/dp/B0F2N3HK6N) showed a $25 preset and E-mail delivery. The primary purchase button links to the user's [official Canadian gift-card category](https://www.amazon.ca/gift-cards/b?node=9230166011); the direct eGift page is also available. It describes the host's intended pooled birthday purchase of a PS5 Slim Disc Edition, GTA VI and accessories, without asserting present game availability or pricing. No payment or claim code is collected by this app.
+
 `apps/web/public/images/yalda-dusk.webp` is the current project-specific AI-generated hero, edited with the built-in imagegen tool from the initial bright winter draft following the user's feedback. It depicts a snowy winter dusk outside, warm candlelight and tea inside, pomegranates, watermelon, nuts, pastries, Hafez and Shahnameh. The flag was removed at the user's request. The final 1536-pixel WebP is approximately 412 KiB. This is illustrative generated photography.
 
 `apps/web/public/images/lion-sun-pin.webp` was supplied by the user via [this source image](https://iranopasmigirim.com/images/store/badge-cutout.webp); the guest selector links to the user's [product page](https://iranopasmigirim.com/fa/ribbon). It is an external product asset, not an original generated asset or an endorsement. No purchase is made by the app.

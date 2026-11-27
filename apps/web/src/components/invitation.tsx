@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import {
   ArrowDown,
   BookOpen,
@@ -223,18 +224,38 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
               <span>
                 <small>نشانی</small>
                 <strong>{event.venue || 'خانهٔ میزبان'}</strong>
-                <span>{event.address}</span>
+                <span dir={event.venue.includes('Sloane') ? 'ltr' : undefined}>
+                  {event.address}
+                </span>
+                {event.venue.includes('Sloane') && <small>{event.entrance}</small>}
               </span>
+              {event.venue.includes('Sloane') && (
+                <Image
+                  className="venue-thumbnail"
+                  src={`${basePath}/images/sloane-east-tower.webp`}
+                  alt="نمای ساختمان Sloane، برج شرقی"
+                  width={96}
+                  height={76}
+                />
+              )}
             </div>
             <CalendarOptions data={data} />
             <details className="winter-more-details">
-              <summary>ورود و پارکینگ</summary>
+              <summary>مسیریابی و هماهنگی</summary>
               <p>{event.parking}</p>
               <p>{event.entrance}</p>
               <p>{event.dressCode}</p>
-              <p>
-                {partyHosts} · {event.contact}
-              </p>
+              <p>برای هماهنگی با {partyHosts}:</p>
+              <div className="venue-phones">
+                {event.contact
+                  .split(' · ')
+                  .filter(Boolean)
+                  .map((phone) => (
+                    <a key={phone} dir="ltr" href={`tel:${phone.replace(/[^+0-9]/g, '')}`}>
+                      {phone}
+                    </a>
+                  ))}
+              </div>
               <a
                 className="text-link"
                 href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}`}

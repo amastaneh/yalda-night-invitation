@@ -4,20 +4,32 @@ export const giftOptions = [
   {
     id: 'gift-card',
     title: 'کارت هدیه',
-    note: 'Best Buy · کارت ۲۵ دلاری',
+    note: 'Amazon.ca · کارت دیجیتال ۲۵ دلاری',
     capacity: 20,
     emoji: '🎁',
   },
-  { id: 'pastry', title: 'شیرینی', note: 'یک بسته برای سفرهٔ یلدا', capacity: 4, emoji: '🍰' },
+  {
+    id: 'pastry',
+    title: 'شیرینی',
+    note: 'یک بسته؛ لطفاً برای نوع شیرینی هماهنگ کنید.',
+    capacity: 4,
+    emoji: '🍰',
+  },
   {
     id: 'pin',
     title: 'پین شیر و خورشید',
-    note: 'برای این شب، فقط یک عدد کافی‌ست',
+    note: 'یکی کافیه.',
     capacity: 1,
     emoji: '🎗️',
   },
 ] as const;
 export type GiftKind = (typeof giftOptions)[number]['id'];
+export const birthdayGift = {
+  amount: 25,
+  email: 'amastaneh@gmail.com',
+  shopUrl: 'https://www.amazon.ca/gift-cards/b?node=9230166011',
+  digitalUrl: 'https://www.amazon.ca/dp/B0F2N3HK6N',
+};
 export type GiftChoice = { kind: GiftKind; reserved: number; mine: boolean };
 export const fortunes = [
   { poem: 'بر سر آنم که گر ز دست برآید\nدست به کاری زنم که غصه سر آید', ghazal: 232 },
