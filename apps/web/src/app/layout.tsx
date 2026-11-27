@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Vazirmatn, Lalezar, Geist } from 'next/font/google';
+import { Vazirmatn, Lalezar, Lateef, Geist } from 'next/font/google';
 import { Providers } from '@/components/providers';
 import './globals.css';
 import './winter.css';
@@ -15,6 +15,13 @@ const lalezar = Lalezar({
   display: 'swap',
 });
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'swap' });
+const lateef = Lateef({
+  weight: '400',
+  subsets: ['arabic'],
+  variable: '--font-lateef',
+  display: 'swap',
+  preload: false,
+});
 export const metadata: Metadata = {
   title: 'یلدا | بلندترین شب، کنار هم',
   description: 'دعوتی برای باهم بودن در بلندترین شب سال',
@@ -24,7 +31,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fa" dir="rtl">
-      <body className={`${vazir.variable} ${lalezar.variable} ${geist.variable}`}>
+      <body
+        className={`${vazir.variable} ${lalezar.variable} ${geist.variable} ${lateef.variable}`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

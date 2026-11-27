@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, type CSSProperties } from 'react';
 
 export function PomegranateBowl() {
   const id = `bowl-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
@@ -158,6 +158,28 @@ export function PomegranateBowl() {
           </g>
         ))}
       </g>
+      {Array.from({ length: 14 }, (_, i) => (
+        <g key={`spill-${i}`} transform={`translate(${39 + (i % 5) * 4} ${54 + (i % 4) * 3})`}>
+          <g
+            className="bowl-seed-spill"
+            style={
+              {
+                '--spill-x': `${-20 - ((i * 13) % 34)}px`,
+                '--spill-y': `${69 + ((i * 7) % 18)}px`,
+                animationDelay: `${(i % 7) * 0.055}s`,
+              } as CSSProperties
+            }
+          >
+            <path
+              d="M-4-3Q0-7 4-3L4 2Q0 7-4 2Z"
+              fill={`url(#${id}-seed)`}
+              stroke="#f6b2a3"
+              strokeWidth=".6"
+            />
+            <path d="M-1-3L1-3" stroke="#ffe3ce" strokeWidth="1" />
+          </g>
+        </g>
+      ))}
     </svg>
   );
 }

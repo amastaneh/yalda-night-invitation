@@ -1,5 +1,5 @@
 'use client';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useRef, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
 import * as motion from 'motion/react-m';
 import { Check, Plus, ArrowUpLeft, Gift, X, Copy } from 'lucide-react';
@@ -27,6 +27,19 @@ export function Gifts({
   const [pending, setPending] = useState<GiftKind | null>(null);
   const [emailCopied, setEmailCopied] = useState(false);
   const [draftDetails, setDraftDetails] = useState<GiftDetails>({});
+  const [animated, setAnimated] = useState<GiftKind | null>(null);
+  const animationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (animationTimer.current) clearTimeout(animationTimer.current);
+    },
+    [],
+  );
+  function animate(kind: GiftKind) {
+    if (animationTimer.current) clearTimeout(animationTimer.current);
+    setAnimated(kind);
+    animationTimer.current = setTimeout(() => setAnimated(null), 2200);
+  }
   const choices = data.giftChoices;
   const selected = choices.filter((choice) => choice.mine).length;
   async function choose(kind: GiftKind, selected: boolean, detail?: string) {
@@ -87,7 +100,14 @@ export function Gifts({
           return (
             <motion.article
               key={option.id}
-              className={`winter-gift-card gift-${option.id} ${mine ? 'gift-chosen' : ''} ${full ? 'gift-full' : ''}`}
+              className={`winter-gift-card gift-${option.id} ${mine ? 'gift-chosen' : ''} ${full ? 'gift-full' : ''} ${animated === option.id ? 'gift-animating' : ''}`}
+              onPointerEnter={(event) => {
+                if (event.pointerType === 'mouse') animate(option.id);
+              }}
+              onPointerDown={() => animate(option.id)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') animate(option.id);
+              }}
               initial={false}
               whileHover={{ y: -6 }}
               transition={{ type: 'spring', stiffness: 260, damping: 22 }}
@@ -115,21 +135,36 @@ export function Gifts({
                 ) : option.id === 'pomegranate' ? (
                   <PomegranateBowl />
                 ) : option.id === 'gift-card' ? (
-                  <div className="little-gift-card amazon-gift-card" lang="en" dir="ltr">
-                    <span className="amazon-wordmark">
-                      amazon<span>.ca</span>
+                  <div className="amazon-gift-scene">
+                    <div className="little-gift-card amazon-gift-card" lang="en" dir="ltr">
+                      <span className="amazon-wordmark">
+                        amazon<span>.ca</span>
+                      </span>
+                      <svg className="amazon-smile" viewBox="0 0 100 24" fill="none">
+                        <path
+                          d="M6 4C30 22 64 24 90 7M78 5L94 3L91 17"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <b className="gift-card-value">$25</b>
+                      <small>eGift Card · CAD</small>
+                    </div>
+                    <span className="amazon-sparks">
+                      {Array.from({ length: 8 }, (_, i) => (
+                        <i
+                          key={i}
+                          style={
+                            {
+                              '--spark-angle': `${i * 45 + 20}deg`,
+                              animationDelay: `${(i % 3) * 0.09}s`,
+                            } as CSSProperties
+                          }
+                        />
+                      ))}
                     </span>
-                    <svg className="amazon-smile" viewBox="0 0 100 24" fill="none">
-                      <path
-                        d="M6 4C30 22 64 24 90 7M78 5L94 3L91 17"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <b className="gift-card-value">$25</b>
-                    <small>eGift Card · CAD</small>
                   </div>
                 ) : (
                   <div className="pastry-object">
@@ -138,6 +173,20 @@ export function Gifts({
                     <i />
                     <i />
                     <i />
+                    <span className="pastry-crumbs">
+                      {Array.from({ length: 7 }, (_, i) => (
+                        <b
+                          key={i}
+                          style={
+                            {
+                              '--crumb-x': `${-38 + i * 13}px`,
+                              '--crumb-y': `${30 + (i % 3) * 10}px`,
+                              animationDelay: `${i * 0.06}s`,
+                            } as CSSProperties
+                          }
+                        />
+                      ))}
+                    </span>
                   </div>
                 )}
               </div>

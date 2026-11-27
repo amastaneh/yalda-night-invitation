@@ -15,6 +15,8 @@ import {
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { LivingPhoto } from './living-photo';
+import { PartyMusic } from './party-music';
+import { FortuneBook } from './fortune-book';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from './ui/dialog';
 import { api, basePath, getSession, saveSession, download } from '@/lib/api';
 import {
@@ -91,11 +93,20 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
   }, [invitationSlug]);
   async function drawFortune() {
     setDrawing(true);
+    setFortuneOpen(true);
     try {
-      const result = await api<DailyFortune>('/guest/fortune', 'guest', {});
+      const revealDuration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 150
+        : 1700;
+      const [result] = await Promise.all([
+        fortune?.day === torontoDay()
+          ? Promise.resolve(fortune)
+          : api<DailyFortune>('/guest/fortune', 'guest', {}),
+        new Promise<void>((resolve) => window.setTimeout(resolve, revealDuration)),
+      ]);
       setFortune(result);
-      setFortuneOpen(true);
     } catch (err) {
+      setFortuneOpen(false);
       toast.error((err as Error).message);
     } finally {
       setDrawing(false);
@@ -105,6 +116,7 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
   const poem = fortune ? fortunes[fortune.index] : null;
   return (
     <main className="invitation light winter-page">
+      {!loading && photoReady && <PartyMusic />}
       {(loading || !photoReady) && (
         <div className="invitation-loading" role="status" aria-live="polite">
           <span className="loading-seal" aria-hidden="true">
@@ -210,39 +222,69 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
       {data && event && (
         <>
           <section id="details" className="winter-details winter-width" aria-label="جزئیات مهمانی">
-            <div>
+            <div className="venue-time-card">
               <CalendarDays size={21} />
-              <span>
+              <span className="venue-time-copy">
                 <small>قرار ما</small>
                 <strong>{dateLabel(event.startsAt)}</strong>
                 <span>
                   {timeLabel(event.startsAt)} تا {timeLabel(event.endsAt)} · تورنتو
                 </span>
               </span>
+              <CalendarOptions data={data} />
             </div>
-            <div>
-              <MapPin size={21} />
-              <span className="venue-address">
-                <small>نشانی</small>
-                <strong dir={event.venue.includes('Sloane') ? 'ltr' : undefined}>
-                  {event.venue || 'خانهٔ میزبان'}
-                </strong>
-                <span dir={event.venue.includes('Sloane') ? 'ltr' : undefined}>
-                  {event.address}
+            <div className="venue-location-card">
+              <div className="venue-location-copy">
+                <span className="venue-address">
+                  <small>
+                    <MapPin size={16} /> محل دورهمی
+                  </small>
+                  <strong dir={event.venue.includes('Sloane') ? 'ltr' : undefined}>
+                    {event.venue || 'خانهٔ میزبان'}
+                  </strong>
+                  <span dir={event.venue.includes('Sloane') ? 'ltr' : undefined}>
+                    {event.address}
+                  </span>
+                  {event.venue.includes('Sloane') && <small>{event.entrance}</small>}
                 </span>
-                {event.venue.includes('Sloane') && <small>{event.entrance}</small>}
-              </span>
+                <div className="venue-route-links">
+                  <a
+                    className="venue-map-button"
+                    href={
+                      event.venue.includes('Sloane')
+                        ? venueLinks.building
+                        : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}`
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    موقعیت ساختمان <ArrowDown size={14} />
+                  </a>
+                  {event.venue.includes('Sloane') && (
+                    <a
+                      className="venue-parking-button"
+                      href={venueLinks.parking}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      مسیریابی پارکینگ برج شرقی و غربی <ArrowDown size={14} />
+                    </a>
+                  )}
+                </div>
+              </div>
               {event.venue.includes('Sloane') && (
-                <Image
-                  className="venue-thumbnail"
-                  src={`${basePath}/images/sloane-east-tower.webp`}
-                  alt="نمای ساختمان Sloane، برج شرقی"
-                  width={96}
-                  height={76}
-                />
+                <div className="venue-photo">
+                  <Image
+                    src={`${basePath}/images/sloane-east-tower.webp`}
+                    alt="ورودی و نمای ساختمان اسلون، برج شرقی"
+                    width={480}
+                    height={360}
+                    sizes="(max-width: 640px) 100vw, 240px"
+                  />
+                  <span>اینجا منتظرتونیم</span>
+                </div>
               )}
             </div>
-            <CalendarOptions data={data} />
             <details className="winter-more-details">
               <summary>مسیریابی و هماهنگی</summary>
               <p>{event.parking}</p>
@@ -259,35 +301,6 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
                     </a>
                   ))}
               </div>
-              {event.venue.includes('Sloane') ? (
-                <div className="venue-route-links">
-                  <a
-                    className="text-link"
-                    href={venueLinks.building}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    موقعیت ساختمان
-                  </a>
-                  <a
-                    className="text-link"
-                    href={venueLinks.parking}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    مسیریابی پارکینگ برج شرقی و غربی
-                  </a>
-                </div>
-              ) : (
-                <a
-                  className="text-link"
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  مسیریابی
-                </a>
-              )}
             </details>
           </section>
           {event.features.gifts && <Gifts data={data} reload={reload} />}
@@ -303,19 +316,7 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
             {event.features.hafez && (
               <div id="hafez" className="winter-hafez">
                 <span className="winter-eyebrow">02 / یک نیت، یک غزل</span>
-                <div className={`fortune-book ${drawing ? 'book-opening' : ''}`} aria-hidden="true">
-                  <div className="fortune-book-cover">
-                    <span>✺</span>
-                    <strong>
-                      دیوان
-                      <br />
-                      حافظ
-                    </strong>
-                    <span>✧</span>
-                  </div>
-                  <span className="book-spark spark-one">✦</span>
-                  <span className="book-spark spark-two">✧</span>
-                </div>
+                <FortuneBook opening={drawing} />
                 <h2>حافظ، برای امروز.</h2>
                 <p className="muted">هر خانواده، هر روز یک فال.</p>
                 <Button
@@ -349,14 +350,39 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
         </>
       )}
       <Dialog open={fortuneOpen} onOpenChange={setFortuneOpen}>
-        <DialogContent className="winter-fortune-dialog">
-          <Sparkles className="fortune-star" size={28} />
-          <DialogTitle>این فال امروز شماست</DialogTitle>
+        <DialogContent
+          className={`winter-fortune-dialog fortune-ceremony ${drawing ? 'is-unveiling' : 'is-revealed'}`}
+        >
+          <div className="fortune-reveal-stage" aria-hidden="true">
+            <div className="fortune-golden-halo" />
+            <div className="fortune-orbit-dust">
+              {Array.from({ length: 12 }, (_, i) => (
+                <i
+                  key={i}
+                  style={{
+                    left: `${12 + ((i * 23) % 77)}%`,
+                    top: `${12 + ((i * 31) % 76)}%`,
+                    animationDelay: `${i * -0.17}s`,
+                  }}
+                />
+              ))}
+            </div>
+            <FortuneBook opening={drawing} />
+            <Sparkles className="fortune-star" size={24} />
+          </div>
+          <DialogTitle>{drawing ? 'یک نیت، یک غزل…' : 'این فال امروز شماست'}</DialogTitle>
           <DialogDescription>
-            برای فال بعدی، فردا سر بزنید. روز تازه به وقت تورنتو شروع می‌شود.
+            {drawing
+              ? 'چند لحظه، فقط به نیتتان فکر کنید.'
+              : 'برای فال بعدی، فردا سر بزنید. روز تازه به وقت تورنتو شروع می‌شود.'}
           </DialogDescription>
-          {poem && (
-            <>
+          {drawing && (
+            <p className="fortune-reveal-status" role="status">
+              در حال گشودن دیوان<span aria-hidden="true"> ✦</span>
+            </p>
+          )}
+          {!drawing && poem && (
+            <div className="fortune-revealed-poem">
               <blockquote className="fortune-poem">
                 {poem.poem.split('\n').map((line) => (
                   <span key={line}>
@@ -373,7 +399,7 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
               >
                 غزل {number(poem.ghazal)} · خواندن در گنجور
               </a>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>

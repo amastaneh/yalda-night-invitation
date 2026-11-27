@@ -13,7 +13,6 @@ import {
   type Attendance,
 } from '../../../../packages/shared/src';
 import { Button } from './ui/button';
-import { Pomegranate } from './pomegranate';
 import { householdTitle } from '../../../../packages/shared/src/party';
 type FormValues = z.infer<typeof rsvpSchema>;
 export const attendanceLabels: Record<Attendance, string> = {
@@ -67,23 +66,31 @@ export function Rsvp({
   if (saved)
     return (
       <div className="rsvp-card confirmation" role="status" tabIndex={-1}>
-        <Pomegranate count={data.attending} celebrate />
-        <span className="success-label">
-          <Check size={18} />
-          پاسخ شما ثبت شد
-        </span>
+        <div className="confirmation-mark" aria-hidden="true">
+          <Check size={29} strokeWidth={1.8} />
+          <span>✦</span>
+        </div>
+        <span className="success-label">پاسخ شما ثبت شد</span>
         <h3>{coming.length ? 'قرارمان، شب یلدا.' : 'پاسختان ثبت شد.'}</h3>
         <p className="muted">
-          {coming.length
-            ? `منتظر دیدار ${guestNames} هستیم.`
-            : 'اگر برنامه‌تان تغییر کرد، می‌توانید پاسخ را ویرایش کنید.'}
+          {coming.length ? (
+            <>
+              منتظر دیدار <strong>{guestNames}</strong> هستیم.
+              <br />
+              <span className="confirmation-welcome">چه خوب که کنار همیم ❤️</span>
+            </>
+          ) : (
+            'اگر برنامه‌تان تغییر کرد، می‌توانید پاسخ را ویرایش کنید.'
+          )}
         </p>
-        <Button variant="outline" onClick={() => setSaved(false)}>
-          ویرایش پاسخ
-        </Button>
-        <Button asChild variant="ghost">
-          <a href="#details">دیدن جزئیات مهمانی</a>
-        </Button>
+        <div className="confirmation-actions">
+          <Button asChild>
+            <a href="#details">دیدن جزئیات مهمانی</a>
+          </Button>
+          <Button variant="outline" onClick={() => setSaved(false)}>
+            ویرایش پاسخ
+          </Button>
+        </div>
       </div>
     );
   return (

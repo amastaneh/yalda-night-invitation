@@ -70,11 +70,18 @@ test('test invitation is Amir and Faye, persists locally and never touches the g
       (v) => v.impact === 'serious' || v.impact === 'critical',
     ),
   ).toEqual([]);
-  for (const width of [320, 390, 1440]) {
+  for (const width of [320, 390, 768, 1024, 1180, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth > innerWidth))
       .toBe(false);
+    await expect
+      .poll(() =>
+        page
+          .locator('.winter-gift-grid')
+          .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length),
+      )
+      .toBe(width <= 640 ? 1 : width < 1280 ? 2 : 4);
   }
 });
 test('readonly host page shows all families and searches without edit controls', async ({
