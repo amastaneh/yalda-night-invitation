@@ -5,7 +5,8 @@ export async function requestApi<T>(
   data?: unknown,
   method?: string,
 ): Promise<T> {
-  const direct = new URL(endpoint).hostname === 'script.google.com';
+  const direct =
+    endpoint.startsWith('/api/party') || new URL(endpoint).hostname === 'script.google.com';
   const requestMethod = method || (data === undefined ? 'GET' : 'POST');
   const response = await fetch(direct ? endpoint : `${endpoint}/api${path}`, {
     method: direct ? 'POST' : requestMethod,
@@ -41,7 +42,8 @@ export async function requestApi<T>(
   if (direct) {
     const status = result?.status;
     if (typeof status !== 'number' || !Number.isInteger(status) || status < 200 || status >= 300) {
-      if (status === 403) throw new Error('اتصال شیت هنوز به نسخهٔ جدید به‌روزرسانی نشده است.');
+      if (status === 403 && !endpoint.startsWith('/api/party'))
+        throw new Error('اتصال شیت هنوز به نسخهٔ جدید به‌روزرسانی نشده است.');
       throw new Error(result?.data?.error || result?.error || 'ارتباط با شیت برقرار نشد.');
     }
     return result?.data as T;

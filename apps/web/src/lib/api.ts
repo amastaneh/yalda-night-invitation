@@ -1,8 +1,7 @@
-import hosting from '../../../../config/hosting.json';
 import { requestApi } from './transport';
 export const API =
   process.env.NEXT_PUBLIC_API_URL ||
-  (process.env.NODE_ENV === 'production' ? hosting.sheetsUrl : 'http://127.0.0.1:8787');
+  (process.env.NODE_ENV === 'production' ? '/api/party' : 'http://127.0.0.1:8787');
 export const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 export type Scope = 'guest' | 'admin';
 export function getSession(scope: Scope) {
@@ -17,9 +16,17 @@ export async function api<T>(
   data?: unknown,
   method?: string,
 ): Promise<T> {
-  if (scope === 'admin' && new URL(API).hostname === 'script.google.com')
+  if (scope === 'guest' && /\/invite\/test\/?$/.test(window.location.pathname)) {
+    const { demoRequest } = await import('./demo');
+    return demoRequest(path, data) as T;
+  }
+  if (scope === 'admin' && (API === '/api/party' || new URL(API).hostname === 'script.google.com'))
     throw new Error('مدیریت دعوت‌ها در گوگل‌شیت انجام می‌شود.');
-  return requestApi<T>(API, path, getSession(scope), data, method);
+  const endpoint =
+    scope === 'guest' && /\/invite\/[0-9]{6}\/?$/.test(window.location.pathname)
+      ? '/api/party'
+      : API;
+  return requestApi<T>(endpoint, path, getSession(scope), data, method);
 }
 export function download(contents: string, type: string, filename: string) {
   const url = URL.createObjectURL(new Blob([contents], { type }));

@@ -33,7 +33,7 @@ import type { InvitationData } from '../../../../packages/shared/src';
 const Rsvp = dynamic(() => import('./rsvp').then((m) => m.Rsvp));
 const Gifts = dynamic(() => import('./gifts').then((m) => m.Gifts));
 
-export function Invitation() {
+export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
   const [data, setData] = useState<InvitationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [photoReady, setPhotoReady] = useState(false);
@@ -53,7 +53,7 @@ export function Invitation() {
       bootstrap.current = (async () => {
         const url = new URL(window.location.href);
         const token = url.searchParams.get('token');
-        const family = url.searchParams.get('family');
+        const family = invitationSlug || url.searchParams.get('family');
         if (token || family) {
           if (token) {
             url.searchParams.delete('token');
@@ -86,7 +86,7 @@ export function Invitation() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [invitationSlug]);
   async function drawFortune() {
     setDrawing(true);
     try {
@@ -127,6 +127,11 @@ export function Invitation() {
           />
         ))}
       </div>
+      {invitationSlug === 'test' && (
+        <div className="test-invitation-note" role="note">
+          دعوت‌نامهٔ آزمایشی · انتخاب‌ها فقط در همین مرورگر ذخیره می‌شوند.
+        </div>
+      )}
       <a href="#main-content" className="skip-link">
         رفتن به محتوای اصلی
       </a>

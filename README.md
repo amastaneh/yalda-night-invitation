@@ -1,10 +1,10 @@
 # یلدا · Yalda Together
 
-A Persian-first family invitation platform for a Toronto Yalda gathering. A static Next.js App Router frontend talks to a Cloudflare Worker, with either Google Sheets or local D1 for guest data. No guest accounts, payments, analytics, or gift-card codes.
+A Persian-first family invitation for a Toronto Yalda gathering. The Vercel Next.js app stores guest responses as JSON on GitHub through a server-only API. No guest accounts, payments, analytics, or gift-card codes.
 
 The current guest page opens with an unchanged full-width winter dusk photograph, continuously animated candle flames and tea steam, a clear loading state, compact family RSVP and four optional gift choices. Each family can reserve at most two choices; the pin has one shared slot. Daily Hafez fortunes persist per family and Toronto calendar day. Greeting cards have been removed.
 
-For the simple spreadsheet host workflow, see [Google Sheets setup](docs/GOOGLE-SHEETS.md). In Sheets mode each family occupies one readable row with simple numbered links such as `/invite/?family=1`; the spreadsheet replaces the legacy D1 admin interface. Event details remain in the script's `EVENT` constant. The existing D1 database is preserved when switching modes.
+The 18 families and their six-digit slugs live in `config/guests.json`; event details live in `config/event.json`. Guest URLs are `/invite/103617`. `/invite/test` is a separate browser-only preview for Amir and Faye and never uses real gift capacity. The host path in `config/hosting.json` opens a readonly dashboard with attendance, gift totals, search and invitation-link copying. See [JSON setup](docs/GITHUB-JSON.md). The earlier Sheets and D1 code remains available for historical local workflows.
 
 ## Local development
 
@@ -28,8 +28,8 @@ To override the API URL, copy `.env.example` to `apps/web/.env.local` and retain
 | Command              | Purpose                                                      |
 | -------------------- | ------------------------------------------------------------ |
 | `pnpm dev`           | Frontend + local Workers API + persistent local D1           |
-| `pnpm build`         | Static export, CSP hashes, and Worker dry-run bundle         |
-| `pnpm preview`       | Serve the built static export on port 3000                   |
+| `pnpm build`         | Next.js production build and legacy Worker dry-run bundle  |
+| `pnpm preview`       | Serve the production Next.js app on port 3000              |
 | `pnpm lint`          | ESLint, including React, accessibility and Next rules        |
 | `pnpm typecheck`     | Strict TypeScript across API, shared packages, tests and web |
 | `pnpm test`          | Business logic, security and SQLite integration tests        |

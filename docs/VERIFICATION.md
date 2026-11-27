@@ -1,5 +1,12 @@
 # Verification
 
+## JSON roster and readonly host dashboard — November 27, 2026
+
+- Added the supplied 18 families (37 members) in `config/guests.json`, each with a unique six-digit invitation path. A separate local-only `/invite/test` uses Amir and Faye and makes no guest API requests.
+- Added a readonly host dashboard with current attendance, gift counts, search and individual/all invitation-link copying. Its mobile header wraps and search takes a full row on narrow screens. All eight new desktop/mobile/tablet/WebKit checks passed; the 36 existing journeys also passed in the broader run.
+- All 59 unit/integration tests passed, including GitHub SHA conflict retries that prevent concurrent overbooking, gift limits, persistent daily fortunes, RSVP revision checks and same-host requests behind the Next proxy. Lint and typecheck passed; native Next production build and legacy Worker dry-run passed.
+- Live GitHub writes require the owner's server-only `GITHUB_TOKEN` in Vercel Production. The data branch is independent from `main` and disabled for Vercel deployments.
+
 ## Vercel and live Sheets connection — November 27, 2026
 
 - Production builds default to the deployed Apps Script endpoint; local development retains the Worker. The browser uses a simple POST envelope and follows the Google ContentService redirect without embedding the private bridge key.

@@ -1,5 +1,11 @@
 # Security and privacy
 
+## Current GitHub JSON mode
+
+At the host's request, invitation slugs are six-digit numbers in project JSON, and the readonly host dashboard uses a longer unlisted path. These are simple sharing links rather than strong authentication. Only the server route uses `GITHUB_TOKEN`; it is never returned to the client or included in public build variables. The token is scoped to this repository's Contents permission. Public repository JSON remains publicly readable.
+
+Guest mutation requests validate household membership, statuses, revisions and gift limits. GitHub SHA preconditions and bounded retries re-evaluate capacity after concurrent saves. Responses and API fetches use no-store. The test invitation remains local to the browser and does not affect the roster or shared capacities. The sections below describe the retained historical backends; production no longer uses their storage or admin editing interface.
+
 ## Numbered Sheets invitations
 
 At the host’s request, Sheets mode uses simple family numbers and links such as `/invite/?family=1`, with member numbers within each family. These links are intentionally easy to share and are not secret authentication tokens. The spreadsheet stores readable names, attendance and gift choices without GUID or session columns. The Vercel static frontend can call only the known guest operations directly in Apps Script; no server secret is included in browser requests. Requests validate the selected family and its members, and reservations remain atomic under a script lock. The optional local Worker bridge still uses its own private server secret, origin checks and request limits. The older token-based model below applies to the retained D1 backend.

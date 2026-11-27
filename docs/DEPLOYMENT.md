@@ -1,6 +1,12 @@
 # Deployment
 
-## Current: Vercel + Google Sheets
+## Current: Vercel + GitHub JSON
+
+Pushing `main` updates the Vercel application. Production guest requests use the same-origin `/api/party` server route. Set the server-only `GITHUB_TOKEN` environment variable in Vercel Production; grant its fine-grained token Contents read/write access only to this repository. Details: [GitHub JSON setup](GITHUB-JSON.md).
+
+The guest roster and event remain in committed JSON configuration. Live responses are stored in `data/responses.json` on `codex/party-data`, with GitHub SHA conflict detection and capacity rechecks before retrying concurrent writes. Vercel deployment is disabled for this data branch. No database or Apps Script deployment is needed for the current flow. The Next.js server API requires native Vercel deployment rather than static Pages export.
+
+## Previous: Vercel + Google Sheets
 
 Production is [yalda-night-invitation.vercel.app](https://yalda-night-invitation.vercel.app/). Pushing `main` triggers the owner's configured Vercel deployment. `config/hosting.json` records the site and Apps Script web-app URLs. Unless `NEXT_PUBLIC_API_URL` explicitly selects a different backend, production builds call the Sheets guest API directly with simple text POST requests and follow the Google ContentService redirect. No server secret is bundled in the frontend, and no Cloudflare Worker or Vercel server function is required for this mode.
 

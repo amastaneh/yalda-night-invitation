@@ -1,0 +1,27 @@
+{
+  "title": "شب یلدا",
+  "description": "",
+  "startsAt": "2026-12-21T23:00:00.000Z",
+  "endsAt": "2026-12-22T04:00:00.000Z",
+  "deadline": "2026-12-21T23:00:00.000Z",
+  "venue": "خانهٔ میزبان",
+  "address": "نشانی مهمانی را اینجا بنویسید",
+  "parking": "",
+  "entrance": "",
+  "dressCode": "",
+  "host": "امیر و فی",
+  "contact": "",
+  "heroUrl": "",
+  "status": "open",
+  "features": {
+    "gifts": true,
+    "pomegranate": true,
+    "feast": true,
+    "mystery": false,
+    "hafez": true,
+    "guestbook": false,
+    "card": false
+  },
+  "pomegranateMultiplier": 3,
+  "pomegranateMax": 30
+}
