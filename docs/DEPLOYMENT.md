@@ -1,4 +1,12 @@
-# GitHub Pages + Cloudflare Workers + D1
+# Deployment
+
+## Current: Vercel + Google Sheets
+
+Production is [yalda-night-invitation.vercel.app](https://yalda-night-invitation.vercel.app/). Pushing `main` triggers the owner's configured Vercel deployment. `config/hosting.json` records the site and Apps Script web-app URLs. Unless `NEXT_PUBLIC_API_URL` explicitly selects a different backend, production builds call the Sheets guest API directly with simple text POST requests and follow the Google ContentService redirect. No server secret is bundled in the frontend, and no Cloudflare Worker or Vercel server function is required for this mode.
+
+Deploy the prepared current Apps Script as an anonymous Web app before testing numbered invitations. The script exposes only the family guest operations publicly; its optional private Worker bridge remains usable for local development. It generates shared invitation links using the Vercel origin. Opening the web-app URL should return `numbered-invitations-v3`; a library URL is not an API endpoint. See [Sheets setup](GOOGLE-SHEETS.md).
+
+## Legacy: GitHub Pages + Cloudflare Workers + D1
 
 This preserves the requested architecture. No production resource is created merely by installing or building. Local data never migrates to production automatically.
 

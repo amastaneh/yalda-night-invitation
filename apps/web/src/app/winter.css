@@ -1096,12 +1096,478 @@
     transform: rotate(-8deg) rotateY(-28deg);
   }
 }
+/* Warm stone tones echo the table and dusk window while retaining the green/ruby typography. */
+.winter-page,
+.winter-fortune-dialog {
+  --background: #aaa797;
+  --surface: #ddd7c7;
+  --surface-raised: #ece4d2;
+  --foreground: #193026;
+  --muted: #344332;
+  --border: #7f88745c;
+  --gold: #59401b;
+}
+.winter-page {
+  background: radial-gradient(ellipse at 12% 7%, #dcb78035, transparent 55%), #aaa797;
+}
+.winter-width {
+  max-width: 1480px;
+  width: calc(100% - 80px);
+}
+.winter-hero {
+  grid-template-columns: 0.6fr 1.4fr;
+  gap: 32px;
+  min-height: 0;
+  padding-block: 28px;
+}
+.winter-hero-copy {
+  padding: 10px 0 10px 8px;
+}
+.winter-hero h1 {
+  font-size: clamp(3.2rem, 4.5vw, 5rem);
+}
+.winter-greeting {
+  color: var(--muted);
+}
+.winter-hero-art {
+  aspect-ratio: 3/2;
+  min-height: 0;
+  border-radius: 22px;
+  background: #6c6659;
+  isolation: isolate;
+}
+.winter-hero-art > img {
+  object-position: center;
+  animation: none;
+}
+.living-photo-effects {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.candle-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: candle-flicker 3s ease-in-out infinite;
+}
+.candle-halo {
+  animation: candle-breathe 4s ease-in-out infinite;
+}
+.tea-steam {
+  opacity: 0;
+  animation: tea-drift 7s ease-in-out infinite;
+}
+.winter-gift-card {
+  background: #e7dfce;
+  border-color: #c4bda9;
+}
+.winter-gift-card.gift-chosen {
+  background: #dce2ce;
+}
+.winter-gift-card > p,
+.gift-source,
+.gift-release {
+  color: #435039;
+}
+.gift-availability {
+  color: #344a2b;
+  background: #d4d9c5;
+  font-size: 10px;
+}
+.gift-card-value {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  font:
+    700 22px/1 var(--font-geist),
+    sans-serif;
+}
+.little-gift-card > svg {
+  top: 13px;
+  right: 13px;
+  width: 20px;
+  height: 20px;
+}
+.little-gift-card small {
+  letter-spacing: 1px;
+  font-size: 7px;
+}
+.winter-fortune-dialog {
+  background: #e5decb;
+}
+.winter-rsvp .submit-rsvp {
+  margin-top: 14px;
+}
+.invitation-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: radial-gradient(ellipse at center, #ded0b6, #aaa797 78%);
+  color: #193026;
+  text-align: center;
+  padding: 24px;
+}
+.loading-seal {
+  font-family: serif;
+  font-size: 60px;
+  color: #92273e;
+  line-height: 1;
+}
+.loading-orbit {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #19302625;
+  border-top-color: #92273e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+.invitation-loading strong {
+  font-weight: 500;
+  font-size: 16px;
+}
+.invitation-loading small {
+  color: #344332;
+  font-size: 12px;
+}
+@keyframes candle-flicker {
+  0%,
+  100% {
+    transform: rotate(-2deg) scale(0.92, 1);
+    opacity: 0.7;
+  }
+  23% {
+    transform: rotate(3deg) scale(1.03, 0.97);
+    opacity: 0.95;
+  }
+  57% {
+    transform: rotate(-3deg) scale(0.96, 1.04);
+    opacity: 0.8;
+  }
+  79% {
+    transform: rotate(1deg) scale(1, 0.98);
+    opacity: 0.9;
+  }
+}
+@keyframes candle-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  45% {
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0.45;
+  }
+}
+@keyframes tea-drift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 9px) scaleX(0.85);
+  }
+  28% {
+    opacity: 0.38;
+  }
+  65% {
+    opacity: 0.23;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(9px, -26px) scaleX(1.2);
+  }
+}
+
+/* The first scene fills the viewport, including behind the navigation. */
+.winter-page .winter-header {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  z-index: 10;
+  min-height: 72px;
+  padding-inline: clamp(16px, 3vw, 48px);
+  background: linear-gradient(#203b3dd9, #203b3da8);
+  backdrop-filter: blur(10px);
+}
+.winter-hero.winter-width > .winter-hero-art {
+  height: 100vh;
+  height: 100svh;
+  aspect-ratio: auto;
+  flex: none;
+}
+.living-photo-canvas {
+  position: absolute;
+  width: max(100%, 150svh);
+  aspect-ratio: 3 / 2;
+  top: 50%;
+  left: min(0px, calc((100% - 150svh) * 0.94));
+  transform: translateY(-50%);
+}
+.photo-scroll-cue {
+  position: absolute;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1px solid #fff3db80;
+  border-radius: 100px;
+  color: #fff5e4;
+  background: #213b3cbd;
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  white-space: nowrap;
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .winter-width {
+    width: calc(100% - 48px);
+  }
+  .winter-hero {
+    grid-template-columns: 0.75fr 1.25fr;
+    gap: 22px;
+  }
+  .winter-hero h1 {
+    font-size: 3.2rem;
+  }
+  .winter-hero-copy > .winter-eyebrow {
+    letter-spacing: 1px;
+    font-size: 8px;
+  }
+}
+@media (max-width: 760px) {
+  .winter-width {
+    width: calc(100% - 32px);
+  }
+  .winter-hero {
+    grid-template-columns: 1fr;
+    padding-block: 18px 24px;
+    gap: 18px;
+  }
+  .winter-hero-art {
+    order: -1;
+    min-height: 0;
+    border-radius: 14px;
+  }
+  .winter-hero-copy {
+    padding: 0 8px;
+  }
+  .winter-hero h1 {
+    font-size: 3.7rem;
+    margin-top: 12px;
+  }
+  .winter-greeting {
+    margin-top: 12px;
+  }
+  .winter-subtitle {
+    margin-top: 10px;
+  }
+  .winter-date {
+    margin-top: 12px;
+  }
+  .gift-availability {
+    font-size: 8px;
+  }
+  .gift-card-value {
+    font-size: 19px;
+    bottom: 10px;
+  }
+}
+/* Full-width evening scene; the photograph itself stays byte-for-byte unchanged. */
+.winter-page {
+  --background: #2b4142;
+  --surface: #354e4b;
+  --surface-raised: #3d5751;
+  --foreground: #f6eddd;
+  --muted: #d5dccf;
+  --border: #d6cba230;
+  --gold: #dfbd82;
+  background: radial-gradient(ellipse at 50% 8%, #9d79451c, transparent 55%), #2b4142;
+}
+.winter-seal {
+  color: #e6a18e;
+}
+.winter-hero.winter-width {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  padding-block: 0 30px;
+  gap: 24px;
+}
+.winter-hero-art {
+  order: -1;
+  width: 100%;
+  border-radius: 0;
+  box-shadow: 0 20px 70px #142c2b45;
+}
+.winter-hero-copy {
+  text-align: center;
+  width: calc(100% - 40px);
+  max-width: 1050px;
+  padding: 0;
+}
+.winter-hero-copy > .winter-eyebrow,
+.winter-date {
+  justify-content: center;
+}
+.winter-hero h1 {
+  font-size: clamp(3rem, 4.8vw, 4.8rem);
+  margin-top: 12px;
+}
+.winter-hero h1 br {
+  display: none;
+}
+.winter-hero h1 em {
+  color: #efaa94;
+}
+.winter-greeting {
+  margin-top: 12px;
+}
+.winter-subtitle {
+  margin-top: 10px;
+}
+.winter-date {
+  margin-top: 15px;
+}
+.winter-detail-link {
+  margin-inline: 0;
+}
+.winter-signature {
+  display: none;
+}
+.winter-gift-card,
+.winter-rsvp,
+.winter-hafez {
+  --surface-raised: #f2eadb;
+  --foreground: #193026;
+  --muted: #344332;
+  --gold: #59401b;
+  --border: #82917455;
+  --background: #e7dfce;
+  --surface: #e4dcc9;
+  color: var(--foreground);
+}
+.winter-rsvp,
+.winter-hafez {
+  background: #e7dfce;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid #dbcca5;
+}
+.winter-hafez {
+  border-inline-start: 0;
+}
+.winter-bottom {
+  gap: 24px;
+}
+.invitation-loading {
+  background: radial-gradient(ellipse at center, #47605a, #243b3d 80%);
+  color: #f6eddd;
+}
+.loading-seal {
+  color: #e5b78b;
+}
+.invitation-loading small {
+  color: #d5dccf;
+}
+.loading-orbit {
+  border-color: #f6eddd30;
+  border-top-color: #e5b78b;
+}
+@media (max-width: 760px) {
+  .winter-hero.winter-width {
+    gap: 18px;
+    padding-bottom: 24px;
+  }
+  .winter-hero h1 {
+    font-size: 3rem;
+  }
+  .winter-hero h1 br {
+    display: block;
+  }
+  .winter-rsvp,
+  .winter-hafez {
+    padding: 20px 16px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
+  .living-photo-effects {
+    display: block;
+  }
   .winter-page *,
   .winter-page *::before,
   .winter-page *::after {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+/* The host explicitly requested continuous, gentle candle/tea motion, with no playback controls. */
+.winter-page .living-photo-effects .candle-flame {
+  animation: candle-flicker 2.8s ease-in-out infinite !important;
+}
+.winter-page .living-photo-effects > g:nth-of-type(2) .candle-flame {
+  animation-delay: -0.8s !important;
+  animation-duration: 2.4s !important;
+}
+.winter-page .living-photo-effects > g:nth-of-type(3) .candle-flame {
+  animation-delay: -1.7s !important;
+  animation-duration: 3.1s !important;
+}
+.winter-page .living-photo-effects .candle-halo {
+  animation: candle-breathe 4s ease-in-out infinite !important;
+}
+.winter-page .living-photo-effects .tea-steam {
+  animation: tea-drift 6s ease-in-out infinite !important;
+}
+.winter-page .living-photo-effects .tea-steam:nth-child(2) {
+  animation-delay: -2s !important;
+}
+.winter-page .living-photo-effects .tea-steam:nth-child(3) {
+  animation-delay: -4s !important;
+}
+@keyframes candle-flicker {
+  0%,
+  100% {
+    transform: rotate(-5deg) scale(0.95, 1.08);
+    opacity: 0.85;
+  }
+  23% {
+    transform: rotate(6deg) scale(1.05, 0.94);
+    opacity: 1;
+  }
+  57% {
+    transform: rotate(-4deg) scale(0.92, 1.15);
+    opacity: 0.8;
+  }
+  79% {
+    transform: rotate(3deg) scale(1.02, 0.98);
+    opacity: 1;
+  }
+}
+@keyframes tea-drift {
+  0% {
+    opacity: 0;
+    transform: translate(-2px, 8px) scaleX(0.85);
+  }
+  28% {
+    opacity: 0.65;
+  }
+  65% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(16px, -40px) scaleX(1.25);
   }
 }

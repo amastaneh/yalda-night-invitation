@@ -9,6 +9,12 @@ import {
 } from '../../packages/shared/src';
 import { hash, randomToken, passwordHash, equal } from '../../apps/api/src/security';
 import { event } from './fixture';
+import { householdTitle } from '../../packages/shared/src/party';
+it('addresses families warmly without adding a family prefix for a solo guest', () => {
+  expect(householdTitle('آزی-امین', 2)).toBe('خانوادهٔ نازنین آزی-امین');
+  expect(householdTitle('خانوادهٔ بهار', 3)).toBe('خانوادهٔ نازنین بهار');
+  expect(householdTitle('آزی', 1)).toBe('آزی');
+});
 
 describe('calendar and localization contracts', () => {
   it('creates timezone-independent UTC calendar events with escaped fields', () => {

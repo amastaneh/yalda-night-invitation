@@ -1,5 +1,25 @@
 # Verification
 
+## Vercel and live Sheets connection — November 27, 2026
+
+- Production builds default to the deployed Apps Script endpoint; local development retains the Worker. The browser uses a simple POST envelope and follows the Google ContentService redirect without embedding the private bridge key.
+- Updated the existing Apps Script deployment to version 2. Its health response reports `numbered-invitations-v3`; an anonymous numbered-family login returned status 200 and the expected six-member invitation.
+- All 49 unit/integration tests and all 36 desktop/mobile/tablet/WebKit journeys passed. Lint, typecheck, production static export and Worker dry-run build passed.
+
+## Fullscreen first scene — November 27, 2026
+
+- The photograph now fills the entire first viewport, including behind the overlaid navigation. A shared image/effects canvas scales and crops as one unit; portrait framing favors the candles, tea and pomegranates. A bottom cue leads to the invitation below.
+- All four targeted desktop/mobile/tablet/WebKit checks passed for full viewport coverage and flame/steam alignment at 320, 390, 768, 1440 and 1920px. Lint and typecheck passed; the original image file is unchanged.
+
+## Full-width living photo and simple invitations — November 26, 2026
+
+- The original hero WebP remains unchanged. The page now uses an evening blue-green background and a full-width photograph with a shared 1536×1024 SVG overlay for continuously moving flames and tea steam, without playback controls. Exact 3:2 sizing keeps the complete photograph and effect coordinates aligned across devices.
+- Added an initial loading status that remains until both the picture and invitation arrive. The new Sheets login returns the full invitation in the same request. Family prefixes are omitted for solo guests; RSVP confirmation names only attending guests. Removed dietary/message inputs, set hosts to Amir and Fi, and marked gift cards as CAD 25.
+- Capacities are five pomegranate bowls, twenty gift cards, four pastry packages and one pin, with a two-choice maximum per family. A new D1 migration updates existing installations; the prepared Sheets script uses matching values.
+- Simplified Sheets storage to nine readable columns, sequential family/member numbers and `/invite/?family=1` links. Existing data is copied to a new tab on first connection, with compatibility for earlier invitation links. No old sheet is deleted.
+- `pnpm test`: 45 tests passed, including each capacity boundary, numbered invitations and migration compatibility. `pnpm test:e2e`: 36 desktop/mobile/tablet/WebKit checks passed, including delayed loading, solo greetings, confirmation names, no horizontal overflow at 320–1920px, accessibility, exact overlay alignment and actual changing animation transforms. Lint, typecheck, production export and Worker dry-run bundle passed.
+- Manually observed the full-width photograph and changing candle/steam transforms in the in-app browser with no console warnings/errors. The revised numbered Sheets backend requires the owner to replace and redeploy the prepared Apps Script before its live behavior can be verified.
+
 ## Winter redesign and Sheets backend — November 26, 2026
 
 - Replaced the long dark guest page with a compact dusk/winter layout, softened light palette, family RSVP, four capacity-limited gift cards and a daily household Hafez fortune. Removed the greeting-card feature from the guest interface.

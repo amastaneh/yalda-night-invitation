@@ -1,10 +1,10 @@
 # یلدا · Yalda Together
 
-A Persian-first, private invitation platform for a Toronto Yalda gathering. A static Next.js App Router frontend talks to a Cloudflare Worker, with either Google Sheets or local D1 for guest data. No guest accounts, payments, analytics, or gift-card codes.
+A Persian-first family invitation platform for a Toronto Yalda gathering. A static Next.js App Router frontend talks to a Cloudflare Worker, with either Google Sheets or local D1 for guest data. No guest accounts, payments, analytics, or gift-card codes.
 
-The current guest page uses a warm winter dusk scene, gentle snowfall, compact family RSVP and four optional gift choices. Each family can reserve at most two choices; the pin has one shared slot. Daily Hafez fortunes persist per family and Toronto calendar day. Greeting cards have been removed.
+The current guest page opens with an unchanged full-width winter dusk photograph, continuously animated candle flames and tea steam, a clear loading state, compact family RSVP and four optional gift choices. Each family can reserve at most two choices; the pin has one shared slot. Daily Hafez fortunes persist per family and Toronto calendar day. Greeting cards have been removed.
 
-For the simple spreadsheet host workflow, see [Google Sheets setup](docs/GOOGLE-SHEETS.md). In Sheets mode each family occupies one row, and the spreadsheet replaces the legacy D1 admin interface. Event details remain in the script's `EVENT` constant. The existing D1 database is preserved when switching modes.
+For the simple spreadsheet host workflow, see [Google Sheets setup](docs/GOOGLE-SHEETS.md). In Sheets mode each family occupies one readable row with simple numbered links such as `/invite/?family=1`; the spreadsheet replaces the legacy D1 admin interface. Event details remain in the script's `EVENT` constant. The existing D1 database is preserved when switching modes.
 
 ## Local development
 

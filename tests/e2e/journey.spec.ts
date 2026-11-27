@@ -2,6 +2,7 @@ import { test, expect, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
 import type { InvitationData } from '../../packages/shared/src';
+import { householdTitle } from '../../packages/shared/src/party';
 const access = JSON.parse(readFileSync('.local-access.json', 'utf8')) as {
   username: string;
   password: string;
@@ -67,7 +68,9 @@ test('opens secure invitation, saves partial attendance, edits RSVP without gift
   await page.goto('/invite/?token=' + token);
   await expect(page.getByRole('heading', { name: /بیرون، برف/ })).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: `خانوادهٔ آزمون ${info.project.name} ${runId}` }),
+    page.getByRole('heading', {
+      name: householdTitle(`خانوادهٔ آزمون ${info.project.name} ${runId}`, 3),
+    }),
   ).toBeVisible();
   await expect(page).toHaveURL(/\/invite\/$/);
   const rsvp = page.locator('#rsvp');
@@ -76,6 +79,10 @@ test('opens secure invitation, saves partial attendance, edits RSVP without gift
   await rsvp.getByRole('combobox').nth(2).selectOption('maybe');
   await rsvp.getByRole('button', { name: 'ثبت پاسخ دعوت' }).click();
   await expect(rsvp.getByText('پاسخ شما ثبت شد', { exact: true })).toBeVisible();
+  await expect(rsvp.getByRole('heading', { name: 'قرارمان، شب یلدا.' })).toBeVisible();
+  await expect(rsvp.locator('.confirmation p')).toContainText('آزاده');
+  await expect(rsvp.locator('.confirmation p')).toContainText('سامان');
+  await expect(rsvp.locator('.confirmation p')).not.toContainText('باران');
   let d = (await (await call(request, '/invitation', guestSession)).json()) as InvitationData;
   expect(d.members.map((m) => m.status).sort()).toEqual(['attending', 'attending', 'maybe']);
   expect(d.pledges).toHaveLength(0);
@@ -165,7 +172,7 @@ test('RTL layouts have no overflow and no serious accessibility violations', asy
     path: `work/screenshots/invitation-${info.project.name}.png`,
     fullPage: true,
   });
-  await expect(page.locator('main.invitation')).toHaveCSS('background-color', 'rgb(229, 230, 222)');
+  await expect(page.locator('main.invitation')).toHaveCSS('background-color', 'rgb(43, 65, 66)');
 });
 test('admin can manage a family, view actual statistics and export CSV', async ({ page }, info) => {
   await page.addInitScript(
@@ -208,4 +215,122 @@ test('invalid invitations and anonymous admin remain private', async ({ page, re
   await page.goto('/admin/');
   await expect(page.getByRole('heading', { name: 'خوش آمدید، میزبان.' })).toBeVisible();
   expect((await call(request, '/admin/events', 'invalid')).status()).toBe(401);
+});
+
+test('shows a loading state until the invitation arrives, with a compact solo guest greeting', async ({
+  page,
+  request,
+}) => {
+  const invitation = (await (
+    await call(request, '/invitation', guestSession)
+  ).json()) as InvitationData;
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/api/invitation', async (route) => {
+    await gate;
+    await route.fulfill({
+      json: {
+        ...invitation,
+        household: { ...invitation.household, name: 'آزاده' },
+        members: [invitation.members[0]],
+      },
+    });
+  });
+  await page.addInitScript(
+    (session) => sessionStorage.setItem('yalda-guest', session),
+    guestSession,
+  );
+  try {
+    await page.goto('/invite/');
+    await expect(page.locator('.invitation-loading')).toBeVisible();
+    await expect(page.locator('.invitation-loading')).toContainText(
+      'در حال باز کردن دعوت‌نامهٔ شما',
+    );
+  } finally {
+    release();
+  }
+  await expect(page.locator('.invitation-loading')).toHaveCount(0);
+  await expect(page.locator('#rsvp h3')).toHaveText('آزاده');
+  await expect(page.locator('#rsvp .pill')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'می‌آیم', exact: true })).toBeVisible();
+  await expect(page.getByText('ترجیح غذایی یا پیامی برای میزبان دارید؟')).toHaveCount(0);
+  await expect(page.locator('.winter-footer')).toContainText('به میزبانی امیر و فی');
+});
+
+test('fills the first screen and keeps candle and steam overlays aligned at every viewport', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.addInitScript(
+    (session) => sessionStorage.setItem('yalda-guest', session),
+    guestSession,
+  );
+  await page.goto('/invite/');
+  await expect(page.locator('.invitation-loading')).toHaveCount(0);
+  for (const width of [320, 390, 768, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const geometry = await page.locator('.winter-hero-art').evaluate((element) => {
+      const image = element.querySelector('img')!.getBoundingClientRect();
+      const overlay = element.querySelector('svg')!.getBoundingClientRect();
+      const scene = element.getBoundingClientRect();
+      return {
+        ratio: image.width / image.height,
+        dx: Math.abs(image.x - overlay.x),
+        dy: Math.abs(image.y - overlay.y),
+        dw: Math.abs(image.width - overlay.width),
+        dh: Math.abs(image.height - overlay.height),
+        sceneHeight: scene.height,
+        viewportHeight: innerHeight,
+        sceneWidth: scene.width,
+        viewportWidth: innerWidth,
+        top: scene.top + scrollY,
+        coversScene:
+          image.left <= scene.left + 1 &&
+          image.right >= scene.right - 1 &&
+          image.top <= scene.top + 1 &&
+          image.bottom >= scene.bottom - 1,
+      };
+    });
+    expect(geometry.ratio).toBeCloseTo(1.5, 2);
+    expect(Math.abs(geometry.sceneHeight - geometry.viewportHeight)).toBeLessThan(1);
+    expect(Math.abs(geometry.sceneWidth - geometry.viewportWidth)).toBeLessThan(1);
+    expect(geometry.top).toBeCloseTo(0, 1);
+    expect(geometry.coversScene).toBe(true);
+    for (const diff of [geometry.dx, geometry.dy, geometry.dw, geometry.dh])
+      expect(diff).toBeLessThan(1);
+  }
+  await expect(page.locator('.candle-flame').first()).toHaveCSS('animation-name', 'candle-flicker');
+  await expect(page.locator('.tea-steam').first()).toHaveCSS('animation-name', 'tea-drift');
+  const flame = page.locator('.candle-flame').first();
+  const initialTransform = await flame.evaluate((el) => getComputedStyle(el).transform);
+  await expect
+    .poll(() => flame.evaluate((el) => getComputedStyle(el).transform))
+    .not.toBe(initialTransform);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('.living-photo-effects')).toHaveCSS('display', 'block');
+});
+
+test('opens a numbered family link in one exchange and keeps the readable URL', async ({
+  page,
+  request,
+}) => {
+  const invitation = (await (
+    await call(request, '/invitation', guestSession)
+  ).json()) as InvitationData;
+  let extraReads = 0;
+  await page.route('**/api/auth/invite', async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ family: '1' });
+    await route.fulfill({ json: { session: '1', invitation } });
+  });
+  await page.route('**/api/invitation', async (route) => {
+    extraReads++;
+    await route.abort();
+  });
+  await page.goto('/invite/?family=1');
+  await expect(page.locator('.invitation-loading')).toHaveCount(0);
+  await expect(page.locator('#rsvp h3')).toBeVisible();
+  await expect(page).toHaveURL(/\/invite\/\?family=1$/);
+  expect(extraReads).toBe(0);
 });

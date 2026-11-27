@@ -6,7 +6,7 @@
 
 `apps/web/public/images/lion-sun-pin.webp` was supplied by the user via [this source image](https://iranopasmigirim.com/images/store/badge-cutout.webp); the guest selector links to the user's [product page](https://iranopasmigirim.com/fa/ribbon). It is an external product asset, not an original generated asset or an endorsement. No purchase is made by the app.
 
-The remaining gift objects, snowfall, accumulated edge snow, floating book and button glint are CSS; animations respect reduced-motion preferences. Five public-domain Hafez couplets link to Ganjoor ghazals [232](https://ganjoor.net/hafez/ghazal/sh232), [255](https://ganjoor.net/hafez/ghazal/sh255), [115](https://ganjoor.net/hafez/ghazal/sh115), [179](https://ganjoor.net/hafez/ghazal/sh179) and [153](https://ganjoor.net/hafez/ghazal/sh153).
+The hero WebP remains unchanged. Candle and tea motion are transparent SVG overlays using the image's exact coordinates; the host explicitly requested continuous gentle motion with no playback controls. Other gift objects, snowfall, accumulated edge snow, floating book and button glint are CSS and respect reduced-motion preferences. Five public-domain Hafez couplets link to Ganjoor ghazals [232](https://ganjoor.net/hafez/ghazal/sh232), [255](https://ganjoor.net/hafez/ghazal/sh255), [115](https://ganjoor.net/hafez/ghazal/sh115), [179](https://ganjoor.net/hafez/ghazal/sh179) and [153](https://ganjoor.net/hafez/ghazal/sh153).
 
 ## Earlier design (retained source history)
 

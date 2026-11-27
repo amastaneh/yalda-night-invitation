@@ -27,7 +27,8 @@ export async function sheetsRoute(
     !env.SHEETS_WEBHOOK_SECRET
   )
     throw new Error('Invalid Sheets backend configuration');
-  const session = req.headers.get('Authorization')?.match(/^Bearer ([a-f0-9]{64})$/)?.[1] || '';
+  const session =
+    req.headers.get('Authorization')?.match(/^Bearer (\d{1,6}|[a-f0-9]{64})$/)?.[1] || '';
   try {
     const result = await fetch(url, {
       method: 'POST',

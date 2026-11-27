@@ -42,6 +42,7 @@ beforeEach(async () => {
   const db = databaseState.sqlite;
   db.exec(readFileSync('packages/database/migrations/0001_initial.sql', 'utf8'));
   db.exec(readFileSync('packages/database/migrations/0002_party_choices.sql', 'utf8'));
+  db.exec(readFileSync('packages/database/migrations/0003_gift_capacities.sql', 'utf8'));
   eventId = id();
   h1 = id();
   h2 = id();
@@ -133,6 +134,35 @@ beforeEach(async () => {
 });
 afterEach(() => databaseState.sqlite.close());
 describe('compact party choices and daily fortunes', () => {
+  it.each([
+    ['pomegranate', 5],
+    ['gift-card', 20],
+    ['pastry', 4],
+    ['pin', 1],
+  ] as const)('caps %s at %i families, including at the database boundary', (kind, capacity) => {
+    const db = databaseState.sqlite;
+    const stamp = new Date().toISOString();
+    for (let i = 0; i < capacity; i++) {
+      const householdId = id();
+      db.prepare('INSERT INTO households VALUES(?,?,?,?,0,0,0,?,?)').run(
+        householdId,
+        eventId,
+        `ظرفیت ${i}`,
+        '',
+        stamp,
+        stamp,
+      );
+      db.prepare('INSERT INTO party_gift_choices VALUES(?,?,?,?)').run(
+        householdId,
+        eventId,
+        kind,
+        stamp,
+      );
+    }
+    expect(() =>
+      db.prepare('INSERT INTO party_gift_choices VALUES(?,?,?,?)').run(h1, eventId, kind, stamp),
+    ).toThrow('party_choice_capacity');
+  });
   it('allows two choices, rejects a third, and frees capacity on cancellation', async () => {
     for (const kind of ['pomegranate', 'pastry']) {
       expect(

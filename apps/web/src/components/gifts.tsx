@@ -69,7 +69,11 @@ export function Gifts({
               <div className="gift-card-top">
                 <span className="gift-index">0{index + 1}</span>
                 <span className={`gift-availability ${mine ? 'is-mine' : ''}`}>
-                  {mine ? 'به نام شما' : full ? 'رزرو شده' : `${number(remaining)} جای خالی`}
+                  {mine
+                    ? 'به نام شما'
+                    : full
+                      ? 'تکمیل شده'
+                      : `${number(remaining)} از ${number(option.capacity)} باقی مانده`}
                 </span>
               </div>
               <div className="gift-object" aria-hidden="true">
@@ -95,6 +99,7 @@ export function Gifts({
                       BUY
                     </span>
                     <Gift size={26} />
+                    <b className="gift-card-value">$25</b>
                     <small>GIFT CARD</small>
                   </div>
                 ) : (
@@ -161,7 +166,8 @@ export function Gifts({
         })}
       </div>
       <p className="winter-gift-note">
-        انتخاب‌ها اختیاری‌اند. برای کارت هدیه، مبلغ با شما؛ اینجا پرداخت یا کدی وارد نمی‌کنید.
+        انتخاب‌ها اختیاری‌اند؛ هر انتخاب یک ظرف، بسته یا کارت ۲۵ دلاری. اینجا پرداخت یا کدی وارد
+        نمی‌کنید.
       </p>
     </section>
   );

@@ -64,7 +64,9 @@ export const rsvpSchema = z.object({
   requestId: z.uuid(),
   revision: z.number().int().min(0),
   members: z
-    .array(z.object({ id: z.uuid(), status: statusSchema }))
+    .array(
+      z.object({ id: z.union([z.uuid(), z.string().regex(/^\d{1,6}$/)]), status: statusSchema }),
+    )
     .min(1)
     .max(25),
   dietary: z.string().max(1000),

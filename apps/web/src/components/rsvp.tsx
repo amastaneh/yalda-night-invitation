@@ -14,6 +14,7 @@ import {
 } from '../../../../packages/shared/src';
 import { Button } from './ui/button';
 import { Pomegranate } from './pomegranate';
+import { householdTitle } from '../../../../packages/shared/src/party';
 type FormValues = z.infer<typeof rsvpSchema>;
 export const attendanceLabels: Record<Attendance, string> = {
   pending: 'هنوز مشخص نیست',
@@ -50,11 +51,17 @@ export function Rsvp({
       const next = await onSaved();
       form.reset({ ...values, requestId: crypto.randomUUID(), revision: next.household.revision });
       setSaved(true);
-      toast.success('پاسخ خانواده ثبت شد.');
+      toast.success('پاسخ شما ثبت شد.');
     } catch (error) {
       setServerError((error as Error).message);
     }
   }
+  const coming = data.members
+    .filter((member) => member.status === 'attending')
+    .map((member) => member.name);
+  const guestNames = new Intl.ListFormat('fa', { style: 'long', type: 'conjunction' }).format(
+    coming,
+  );
   if (saved)
     return (
       <div className="rsvp-card confirmation" role="status" tabIndex={-1}>
@@ -63,8 +70,12 @@ export function Rsvp({
           <Check size={18} />
           پاسخ شما ثبت شد
         </span>
-        <h3>خبرتون رسید!</h3>
-        <p className="muted">پاسخ {data.household.name} ثبت شد.</p>
+        <h3>{coming.length ? 'قرارمان، شب یلدا.' : 'پاسختان ثبت شد.'}</h3>
+        <p className="muted">
+          {coming.length
+            ? `منتظر دیدار ${guestNames} هستیم.`
+            : 'اگر برنامه‌تان تغییر کرد، می‌توانید پاسخ را ویرایش کنید.'}
+        </p>
         <Button variant="outline" onClick={() => setSaved(false)}>
           ویرایش پاسخ
         </Button>
@@ -78,12 +89,14 @@ export function Rsvp({
       <div className="rsvp-card-heading">
         <div>
           <span className="overline">دعوت‌نامهٔ اختصاصی شما</span>
-          <h3>{data.household.name}</h3>
+          <h3>{householdTitle(data.household.name, data.members.length)}</h3>
         </div>
-        <span className="pill">
-          <Users size={14} />
-          {number(data.members.length)} نفر
-        </span>
+        {data.members.length > 1 && (
+          <span className="pill">
+            <Users size={14} />
+            {number(data.members.length)} نفر
+          </span>
+        )}
       </div>
       {closed && (
         <div className="notice" role="status">
@@ -104,10 +117,12 @@ export function Rsvp({
             }
           >
             <Check size={17} />
-            همه با هم می‌آییم
+            {data.members.length > 1 ? 'همه با هم می‌آییم' : 'می‌آیم'}
           </Button>
           <details className="family-members">
-            <summary>پاسخ جداگانه برای اعضای خانواده</summary>
+            <summary>
+              {data.members.length > 1 ? 'پاسخ جداگانه برای اعضای خانواده' : 'وضعیت حضورتان'}
+            </summary>
             <div className="member-list">
               {data.members.map((member, index) => (
                 <div className="member-row" key={member.id}>
@@ -136,50 +151,6 @@ export function Rsvp({
                   </div>
                 </div>
               ))}
-            </div>
-          </details>
-          <details className="optional-fields">
-            <summary>
-              ترجیح غذایی یا پیامی برای میزبان دارید؟ <ChevronDown size={17} />
-            </summary>
-            <div className="field">
-              <label htmlFor="dietary">
-                ترجیح غذایی <span>اختیاری</span>
-              </label>
-              <input
-                id="dietary"
-                maxLength={1000}
-                placeholder="مثلاً گیاه‌خواری"
-                {...form.register('dietary')}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="allergies">
-                حساسیت غذایی <span>اختیاری</span>
-              </label>
-              <input
-                id="allergies"
-                maxLength={1000}
-                placeholder="مثلاً حساسیت به مغزها"
-                {...form.register('allergies')}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="message">
-                پیام شما <span>اختیاری</span>
-              </label>
-              <textarea id="message" rows={2} maxLength={2000} {...form.register('message')} />
-            </div>
-            <div className="field">
-              <label htmlFor="contact">
-                راه تماس <span>اختیاری</span>
-              </label>
-              <input
-                id="contact"
-                maxLength={200}
-                autoComplete="email"
-                {...form.register('contact')}
-              />
             </div>
           </details>
           {Object.keys(form.formState.errors).length > 0 && (

@@ -1,6 +1,10 @@
 # Security and privacy
 
-## Authorization
+## Numbered Sheets invitations
+
+At the host’s request, Sheets mode uses simple family numbers and links such as `/invite/?family=1`, with member numbers within each family. These links are intentionally easy to share and are not secret authentication tokens. The spreadsheet stores readable names, attendance and gift choices without GUID or session columns. The Vercel static frontend can call only the known guest operations directly in Apps Script; no server secret is included in browser requests. Requests validate the selected family and its members, and reservations remain atomic under a script lock. The optional local Worker bridge still uses its own private server secret, origin checks and request limits. The older token-based model below applies to the retained D1 backend.
+
+## D1 authorization
 
 Every private request is authorized by the Worker. Guest sessions resolve to an invitation token, household and event on each request; client-supplied household IDs are never trusted. Member IDs must exactly match that household. Gift/food identifiers are checked against the authorized event. Guest sessions cannot call host routes. Invalid, revoked, expired and archived access fails on the backend.
 

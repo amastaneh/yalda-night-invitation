@@ -1,8 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import * as motion from 'motion/react-m';
 import {
   ArrowDown,
   BookOpen,
@@ -14,6 +12,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
+import { LivingPhoto } from './living-photo';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from './ui/dialog';
 import { api, basePath, getSession, saveSession, download } from '@/lib/api';
 import {
@@ -23,7 +22,13 @@ import {
   calendarLinks,
   number,
 } from '../../../../packages/shared/src/format';
-import { fortunes, torontoDay, type DailyFortune } from '../../../../packages/shared/src/party';
+import {
+  fortunes,
+  torontoDay,
+  householdTitle,
+  partyHosts,
+  type DailyFortune,
+} from '../../../../packages/shared/src/party';
 import type { InvitationData } from '../../../../packages/shared/src';
 const Rsvp = dynamic(() => import('./rsvp').then((m) => m.Rsvp));
 const Gifts = dynamic(() => import('./gifts').then((m) => m.Gifts));
@@ -31,6 +36,7 @@ const Gifts = dynamic(() => import('./gifts').then((m) => m.Gifts));
 export function Invitation() {
   const [data, setData] = useState<InvitationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [photoReady, setPhotoReady] = useState(false);
   const [error, setError] = useState('');
   const [fortune, setFortune] = useState<DailyFortune | null>(null);
   const [fortuneOpen, setFortuneOpen] = useState(false);
@@ -47,11 +53,20 @@ export function Invitation() {
       bootstrap.current = (async () => {
         const url = new URL(window.location.href);
         const token = url.searchParams.get('token');
-        if (token) {
-          window.history.replaceState({}, '', `${url.pathname}${url.hash}`);
+        const family = url.searchParams.get('family');
+        if (token || family) {
+          if (token) {
+            url.searchParams.delete('token');
+            window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+          }
           sessionStorage.removeItem('yalda-guest');
-          const auth = await api<{ session: string }>('/auth/invite', 'guest', { token });
+          const auth = await api<{ session: string; invitation?: InvitationData }>(
+            '/auth/invite',
+            'guest',
+            family ? { family } : { token },
+          );
           saveSession('guest', auth.session);
+          if (auth.invitation) return auth.invitation;
         }
         return getSession('guest') ? api<InvitationData>('/invitation') : null;
       })();
@@ -88,6 +103,18 @@ export function Invitation() {
   const poem = fortune ? fortunes[fortune.index] : null;
   return (
     <main className="invitation light winter-page">
+      {(loading || !photoReady) && (
+        <div className="invitation-loading" role="status" aria-live="polite">
+          <span className="loading-seal" aria-hidden="true">
+            ✺
+          </span>
+          <span className="loading-orbit" aria-hidden="true" />
+          <strong>
+            {loading ? 'در حال باز کردن دعوت‌نامهٔ شما…' : 'در حال نمایش تصویر مهمانی…'}
+          </strong>
+          <small>چند لحظه همراه ما باشید.</small>
+        </div>
+      )}
       <div className="winter-atmosphere" aria-hidden="true">
         {Array.from({ length: 22 }, (_, i) => (
           <i
@@ -129,15 +156,18 @@ export function Invitation() {
         </nav>
       </header>
       <section className="winter-hero winter-width" id="main-content">
-        <div className="winter-hero-copy">
+        <div className="winter-hero-copy" id="invitation-intro">
           <span className="winter-eyebrow">
             <span /> YALDA · TORONTO · {new Date().getFullYear()} <span />
           </span>
-          {data && <p className="winter-greeting">{data.household.name}، شما دعوتید.</p>}
+          {data && (
+            <p className="winter-greeting">
+              {householdTitle(data.household.name, data.members.length)}، شما دعوتید.
+            </p>
+          )}
           <h1>
             بیرون، برف.
-            <br />
-            اینجا، <em>یلدا.</em>
+            <br /> اینجا، <em>یلدا.</em>
           </h1>
           <p className="winter-subtitle">انار و شیرینی و شعر؛ دور یک میز.</p>
           {event ? (
@@ -168,33 +198,7 @@ export function Invitation() {
             <span aria-hidden="true">✧</span> یک دورهمیِ ایرانی <span className="winter-line" />
           </div>
         </div>
-        <motion.div className="winter-hero-art" initial={false} animate={{ opacity: 1 }}>
-          <Image
-            src={`${basePath}/images/yalda-dusk.webp`}
-            alt="سفرهٔ یلدای مهمانی با انار، هندوانه، شیرینی، آجیل، حافظ و شاهنامه در نور گرم غروب کنار پنجرهٔ برفی"
-            fill
-            priority
-            sizes="(max-width: 760px) 100vw, 60vw"
-            style={{ objectFit: 'cover' }}
-            unoptimized
-          />
-          <div className="winter-snow" aria-hidden="true">
-            {Array.from({ length: 14 }, (_, i) => (
-              <i
-                key={i}
-                style={{
-                  left: `${(i * 17) % 100}%`,
-                  animationDelay: `-${i * 1.7}s`,
-                  animationDuration: `${9 + (i % 5)}s`,
-                }}
-              />
-            ))}
-          </div>
-          <div className="winter-photo-label">
-            <Snowflake size={14} />
-            <span lang="en">THE LONGEST NIGHT. A BRIGHTER TABLE.</span>
-          </div>
-        </motion.div>
+        <LivingPhoto onReady={() => setPhotoReady(true)} />
       </section>
       {data && event && (
         <>
@@ -224,7 +228,7 @@ export function Invitation() {
               <p>{event.entrance}</p>
               <p>{event.dressCode}</p>
               <p>
-                {event.host} · {event.contact}
+                {partyHosts} · {event.contact}
               </p>
               <a
                 className="text-link"
@@ -239,8 +243,10 @@ export function Invitation() {
           {event.features.gifts && <Gifts data={data} reload={reload} />}
           <section className="winter-bottom winter-width">
             <div id="rsvp" className="winter-rsvp">
-              <span className="winter-eyebrow">01 / دعوت خانوادگی</span>
-              <h2>همه با هم می‌آیید؟</h2>
+              <span className="winter-eyebrow">
+                01 / {data.members.length > 1 ? 'دعوت خانوادگی' : 'دعوت شما'}
+              </span>
+              <h2>{data.members.length > 1 ? 'همه با هم می‌آیید؟' : 'شما هم می‌آیید؟'}</h2>
               <p className="muted">اگر فرصت کردید، خبر بدهید.</p>
               <Rsvp data={data} onSaved={reload} />
             </div>
@@ -284,7 +290,7 @@ export function Invitation() {
             )}
           </section>
           <footer className="winter-footer winter-width">
-            <span>یلدا · به میزبانی {event.host}</span>
+            <span>به میزبانی {partyHosts}</span>
             <span lang="en">A LITTLE SNOW. A LITTLE POETRY.</span>
             <a href={`${basePath}/`} onClick={() => sessionStorage.removeItem('yalda-guest')}>
               خروج از دعوت‌نامه
