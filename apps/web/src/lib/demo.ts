@@ -46,6 +46,7 @@ export function demoRequest(path: string, input?: unknown): unknown {
   const body = input as {
     kind: string;
     selected: boolean;
+    detail?: string;
     members: { id: string; status: Attendance }[];
     revision: number;
     vehicle?: InvitationData['vehicle'];
@@ -59,6 +60,7 @@ export function demoRequest(path: string, input?: unknown): unknown {
       throw new Error('یکی عالیه، دوتا کافیه.');
     choice.mine = body.selected;
     choice.reserved = body.selected ? 1 : 0;
+    choice.detail = body.selected ? body.detail : undefined;
   } else if (path === '/guest/rsvp') {
     if (body.revision !== state.household.revision) throw new Error('صفحه را تازه کنید.');
     state.members.forEach((m) => {

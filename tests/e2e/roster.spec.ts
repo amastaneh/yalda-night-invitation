@@ -14,18 +14,37 @@ test('test invitation is Amir and Faye, persists locally and never touches the g
     page.getByRole('heading', { name: 'خانوادهٔ نازنین امیر و Faye', exact: true }),
   ).toBeVisible();
   await expect(page.getByRole('note')).toContainText('آزمایشی');
+  await page.getByText('مسیریابی و هماهنگی', { exact: true }).click();
+  await expect(page.getByRole('link', { name: 'موقعیت ساختمان', exact: true })).toHaveAttribute(
+    'href',
+    'https://share.google/G0KWpzsalEQqgeH8B',
+  );
+  await expect(
+    page.getByRole('link', { name: 'مسیریابی پارکینگ برج شرقی و غربی', exact: true }),
+  ).toHaveAttribute('href', 'https://maps.app.goo.gl/xQKFCpcaZiyjCTCa8');
+  await expect(page.getByRole('button', { name: 'کپی ایمیل دریافت هدیه' })).toBeHidden();
+  await page.getByText('چطور هدیه بدهیم؟', { exact: true }).click();
+  await expect(page.getByRole('button', { name: 'کپی ایمیل دریافت هدیه' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'خرید پین شیر و خورشید' })).toHaveAttribute(
+    'href',
+    'https://iranopasmigirim.com/fa/ribbon',
+  );
+  await page.getByRole('radio', { name: 'ژله انار', exact: true }).check();
   await expect(page.getByRole('region', { name: 'جزئیات مهمانی' })).toContainText(
     'Sloane Apartments - East Tower',
   );
   await expect(page.getByRole('region', { name: 'جزئیات مهمانی' })).toContainText(
     '29 York Garden Wy',
   );
-  await expect(page.getByRole('link', { name: 'خرید از Amazon.ca' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'خرید از آمازون کانادا' })).toHaveAttribute(
     'href',
     'https://www.amazon.ca/gift-cards/b?node=9230166011',
   );
-  await page.getByRole('button', { name: 'انتخاب انار', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'لغو انتخاب انار', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'انتخاب دسر انار', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'لغو انتخاب دسر انار', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('radio', { name: 'ژله انار', exact: true })).toBeChecked();
   await page.getByRole('button', { name: 'همه با هم می‌آییم', exact: true }).click();
   await page.getByRole('checkbox', { name: 'با خودرو می‌آییم و پارکینگ نیاز داریم' }).check();
   await page.getByRole('button', { name: 'ثبت پاسخ دعوت', exact: true }).click();
@@ -41,7 +60,10 @@ test('test invitation is Amir and Faye, persists locally and never touches the g
     'TEST 123',
   );
   await page.reload();
-  await expect(page.getByRole('button', { name: 'لغو انتخاب انار', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'لغو انتخاب دسر انار', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('radio', { name: 'ژله انار', exact: true })).toBeChecked();
   expect(requests).toEqual([]);
   expect(
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()).violations.filter(

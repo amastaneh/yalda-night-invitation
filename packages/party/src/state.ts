@@ -7,9 +7,17 @@ import {
   type InvitationData,
   type Vehicle,
 } from '../../shared/src';
-import { giftOptions, torontoDay, type DailyFortune, type GiftKind } from '../../shared/src/party';
+import {
+  giftOptions,
+  giftDetailOptions,
+  torontoDay,
+  type DailyFortune,
+  type GiftKind,
+  type GiftDetails,
+} from '../../shared/src/party';
 
 export interface FamilyResponse {
+  giftDetails?: GiftDetails;
   vehicle?: Vehicle | null;
   statuses: Record<string, Attendance>;
   gifts: GiftKind[];
@@ -62,6 +70,7 @@ export function overview(state: PartyState) {
         status: response.statuses[name] || 'pending',
       })),
       gifts: response.gifts,
+      giftDetails: response.giftDetails || {},
       vehicle: response.vehicle || null,
       updatedAt: response.updatedAt,
     };
@@ -102,6 +111,7 @@ export function invitationFor(state: PartyState, slug: string): InvitationData {
     giftChoices: giftOptions.map((o) => ({
       kind: o.id,
       mine: response.gifts.includes(o.id),
+      detail: response.giftDetails?.[o.id as keyof GiftDetails],
       reserved: all.filter((f) => f.gifts.includes(o.id)).length,
     })),
     dailyFortune: response.fortune?.day === torontoDay() ? response.fortune : null,
@@ -128,13 +138,35 @@ export function applyGuestRequest(
     if (!option || typeof body.selected !== 'boolean')
       throw new PartyError(400, 'انتخاب معتبر نیست.');
     const mine = response.gifts.includes(option.id);
-    if (body.selected === mine) return { data: { ok: true }, changed: false };
+    const detailKind = option.id as keyof GiftDetails;
+    const detailOptions: readonly string[] | undefined = giftDetailOptions[detailKind];
+    const detail =
+      body.detail === undefined
+        ? response.giftDetails?.[detailKind] || detailOptions?.[0]
+        : body.detail;
+    if (
+      body.selected &&
+      detailOptions &&
+      (typeof detail !== 'string' || !detailOptions.includes(detail))
+    )
+      throw new PartyError(400, 'نوع پذیرایی معتبر نیست.');
+    const detailChanged =
+      body.selected && detailOptions && response.giftDetails?.[detailKind] !== detail;
+    if (body.selected === mine && !detailChanged) return { data: { ok: true }, changed: false };
     if (body.selected) {
-      if (response.gifts.length >= 2) throw new PartyError(409, 'یکی عالیه، دوتا کافیه.');
-      if (overview(state).filter((f) => f.gifts.includes(option.id)).length >= option.capacity)
+      if (!mine && response.gifts.length >= 2) throw new PartyError(409, 'یکی عالیه، دوتا کافیه.');
+      if (
+        !mine &&
+        overview(state).filter((f) => f.gifts.includes(option.id)).length >= option.capacity
+      )
         throw new PartyError(409, 'ظرفیت این گزینه تکمیل است.');
-      response.gifts.push(option.id);
-    } else response.gifts = response.gifts.filter((id) => id !== option.id);
+      if (!mine) response.gifts.push(option.id);
+      if (detailOptions)
+        response.giftDetails = { ...response.giftDetails, [detailKind]: detail as string };
+    } else {
+      response.gifts = response.gifts.filter((id) => id !== option.id);
+      if (response.giftDetails) delete response.giftDetails[detailKind];
+    }
   } else if (input.path === '/api/guest/rsvp') {
     if (Date.now() > Date.parse(event.deadline))
       throw new PartyError(409, 'مهلت پاسخ پایان یافته است.');

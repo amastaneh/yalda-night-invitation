@@ -2024,3 +2024,88 @@
     grid-template-columns: 1fr;
   }
 }
+.gift-detail-picker {
+  text-align: start;
+  margin: 14px 0 18px;
+}
+.gift-detail-picker legend {
+  font-size: 11px;
+  color: #5b6957;
+  margin-bottom: 8px;
+}
+.gift-detail-picker > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.gift-detail-picker label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 7px 6px;
+  border: 1px solid #c8ccb8;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1.8;
+  color: #394d3b;
+  background: #ffffff38;
+}
+.gift-detail-picker .detail-selected {
+  background: #d3dfc9;
+  border-color: #819879;
+}
+.gift-detail-picker input {
+  width: 12px;
+  height: 12px;
+  min-height: 12px;
+  margin: 0;
+  accent-color: #3e6446;
+  flex-shrink: 0;
+}
+.gift-detail-picker small {
+  font-size: 8px;
+  color: #38523b;
+}
+.gift-detail-picker:disabled label {
+  cursor: default;
+}
+.little-gift-card.amazon-gift-card .amazon-wordmark {
+  font-family: var(--font-vazir), sans-serif;
+  text-align: center;
+  letter-spacing: 0;
+}
+.little-gift-card.amazon-gift-card small {
+  font-family: var(--font-vazir), sans-serif;
+  letter-spacing: 0;
+}
+.gift-pin > .gift-source {
+  display: inline-flex;
+  justify-content: center;
+  border: 1px solid #81947d;
+  border-radius: 100px;
+  padding: 8px 12px;
+}
+.venue-route-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+}
+@media (max-width: 640px) {
+  .gift-detail-picker > div {
+    grid-template-columns: 1fr;
+  }
+  .gift-detail-picker label {
+    min-height: 34px;
+    padding: 6px 8px;
+  }
+}
+.little-gift-card.amazon-gift-card > .amazon-smile {
+  width: 52px;
+  height: 15px;
+  top: 39px;
+  left: 15px;
+}

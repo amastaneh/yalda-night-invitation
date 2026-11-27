@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check, Copy, ExternalLink, RefreshCw, Search } from 'lucide-react';
 import { requestApi } from '@/lib/transport';
-import { giftOptions } from '../../../../packages/shared/src/party';
+import { giftOptions, type GiftDetails } from '../../../../packages/shared/src/party';
 import type { Attendance, Vehicle } from '../../../../packages/shared/src';
 
 type Family = {
@@ -10,6 +10,7 @@ type Family = {
   name: string;
   members: { name: string; status: Attendance }[];
   gifts: string[];
+  giftDetails?: GiftDetails;
   vehicle?: Vehicle | null;
 };
 type Guest = { slug: string; name: string; members: string[] };
@@ -189,7 +190,13 @@ export function HostOverview({
               </div>
               <p className="host-family-gifts">
                 {f.gifts.length
-                  ? f.gifts.map((id) => giftOptions.find((o) => o.id === id)?.title).join(' · ')
+                  ? f.gifts
+                      .map((id) => {
+                        const title = giftOptions.find((o) => o.id === id)?.title;
+                        const detail = f.giftDetails?.[id as keyof GiftDetails];
+                        return detail ? `${title}: ${detail}` : title;
+                      })
+                      .join(' · ')
                   : 'هنوز چیزی انتخاب نکرده‌اند'}
               </p>
               {f.vehicle && (

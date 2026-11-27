@@ -1,5 +1,12 @@
 # Verification
 
+## Dessert choices and Persian gift guidance — November 27, 2026
+
+- Renamed the five shared pomegranate slots to “دسر انار”. Seeded pomegranate is the suggested default; guests can choose wedges, jelly, cheesecake or another pomegranate dessert. Pastry choices use the eight suggestions in the host's reference image, without presenting its illustrative percentages as requirements.
+- Selected dessert/pastry types persist in the same encrypted response JSON and appear in the host view. Editing a reserved type keeps the same capacity slot and still works when a family already has two selections; cancelling clears its detail.
+- Persianized the Amazon card, product names, amount and purchase labels. Moved recipient email/copy and direct digital-card link inside the disclosure. Made the pin purchase link explicit and added the supplied building/parking links separately.
+- All 65 unit/integration checks, lint and typecheck passed. Eight updated browser journeys passed across desktop, mobile, tablet and WebKit, covering type selection persistence, collapsed gift email, purchase destinations, vehicle registration, accessibility and overflow. Manually reviewed desktop cards and adjusted narrow-screen choices to one column per card.
+
 ## Venue, vehicles and Amazon birthday gifts — November 27, 2026
 
 - Added the supplied Sloane East Tower address, Floor 2 / Grid, both click-to-call numbers, maps directions and a small 33KB building thumbnail. The original hero remains unchanged.

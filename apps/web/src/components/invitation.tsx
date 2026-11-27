@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import venueLinks from '../../../../config/venue-links.json';
 import {
   ArrowDown,
   BookOpen,
@@ -256,14 +257,35 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
                     </a>
                   ))}
               </div>
-              <a
-                className="text-link"
-                href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                مسیریابی
-              </a>
+              {event.venue.includes('Sloane') ? (
+                <div className="venue-route-links">
+                  <a
+                    className="text-link"
+                    href={venueLinks.building}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    موقعیت ساختمان
+                  </a>
+                  <a
+                    className="text-link"
+                    href={venueLinks.parking}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    مسیریابی پارکینگ برج شرقی و غربی
+                  </a>
+                </div>
+              ) : (
+                <a
+                  className="text-link"
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  مسیریابی
+                </a>
+              )}
             </details>
           </section>
           {event.features.gifts && <Gifts data={data} reload={reload} />}

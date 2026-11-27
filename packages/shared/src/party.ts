@@ -1,10 +1,16 @@
 // Fixed presentation and party choices live in code, not in editable guest data.
 export const giftOptions = [
-  { id: 'pomegranate', title: 'انار', note: 'یک ظرف انار دون‌شده', capacity: 5, emoji: '🍎' },
+  {
+    id: 'pomegranate',
+    title: 'دسر انار',
+    note: 'یک ظرف برای پذیرایی؛ پیشنهاد ما انار دانه‌شده است.',
+    capacity: 5,
+    emoji: '🍎',
+  },
   {
     id: 'gift-card',
     title: 'کارت هدیه',
-    note: 'Amazon.ca · کارت دیجیتال ۲۵ دلاری',
+    note: 'آمازون کانادا · کارت دیجیتال ۲۵ دلاری',
     capacity: 20,
     emoji: '🎁',
   },
@@ -30,7 +36,21 @@ export const birthdayGift = {
   shopUrl: 'https://www.amazon.ca/gift-cards/b?node=9230166011',
   digitalUrl: 'https://www.amazon.ca/dp/B0F2N3HK6N',
 };
-export type GiftChoice = { kind: GiftKind; reserved: number; mine: boolean };
+export const giftDetailOptions = {
+  pomegranate: ['انار دانه‌شده', 'انار قاچ‌شده', 'ژله انار', 'چیزکیک انار', 'دسر اناری دیگر'],
+  pastry: [
+    'باقلوای پسته‌ای',
+    'باسلوق گردویی',
+    'شیرینی ناپلئونی',
+    'شیرینی لطیفه',
+    'شیرینی نخودچی',
+    'مسقطی انار',
+    'قطاب یزدی',
+    'شیرینی دانمارکی',
+  ],
+} as const;
+export type GiftDetails = Partial<Record<keyof typeof giftDetailOptions, string>>;
+export type GiftChoice = { kind: GiftKind; reserved: number; mine: boolean; detail?: string };
 export const fortunes = [
   { poem: 'بر سر آنم که گر ز دست برآید\nدست به کاری زنم که غصه سر آید', ghazal: 232 },
   { poem: 'یوسف گمگشته بازآید به کنعان غم مخور\nکلبهٔ احزان شود روزی گلستان غم مخور', ghazal: 255 },

@@ -34,6 +34,41 @@ function memoryStore() {
   return { store, read: () => state };
 }
 describe('JSON guest invitations', () => {
+  it('stores dessert types, edits them without extra capacity and clears cancelled choices', () => {
+    const state = emptyState(),
+      slug = guests[0].slug;
+    applyGuestRequest(state, choose(slug, 'pomegranate'));
+    expect(
+      invitationFor(state, slug).giftChoices.find((c) => c.kind === 'pomegranate')?.detail,
+    ).toBe('انار دانه‌شده');
+    applyGuestRequest(state, {
+      ...choose(slug, 'pomegranate'),
+      body: { kind: 'pomegranate', selected: true, detail: 'ژله انار' },
+    });
+    expect(overview(state)[0].giftDetails.pomegranate).toBe('ژله انار');
+    expect(
+      invitationFor(state, slug).giftChoices.find((c) => c.kind === 'pomegranate')?.reserved,
+    ).toBe(1);
+    expect(() =>
+      applyGuestRequest(state, {
+        ...choose(slug, 'pastry'),
+        body: { kind: 'pastry', selected: true, detail: 'invalid' },
+      }),
+    ).toThrow('معتبر');
+    applyGuestRequest(state, {
+      ...choose(slug, 'pastry'),
+      body: { kind: 'pastry', selected: true, detail: 'قطاب یزدی' },
+    });
+    expect(overview(state)[0].giftDetails.pastry).toBe('قطاب یزدی');
+    applyGuestRequest(state, {
+      ...choose(slug, 'pomegranate'),
+      body: { kind: 'pomegranate', selected: true, detail: 'چیزکیک انار' },
+    });
+    expect(overview(state)[0].gifts).toHaveLength(2);
+    expect(overview(state)[0].giftDetails.pomegranate).toBe('چیزکیک انار');
+    applyGuestRequest(state, choose(slug, 'pomegranate', false));
+    expect(overview(state)[0].giftDetails.pomegranate).toBeUndefined();
+  });
   it('validates and returns a household vehicle to its invitation and host view', () => {
     const state = emptyState(),
       slug = guests[0].slug;
