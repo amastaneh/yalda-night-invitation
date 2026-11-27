@@ -190,22 +190,11 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
           </h1>
           <p className="winter-subtitle">انار و شیرینی و شعر؛ دور یک میز.</p>
           {event ? (
-            <>
-              <p className="winter-date">
-                <CalendarDays size={17} />
-                {dateLabel(event.startsAt)}
-                <span>·</span>
-                {timeLabel(event.startsAt)} <small>تورنتو</small>
-              </p>
-              <Button asChild className="winter-main-cta">
-                <a href="#gifts">
-                  برای سفره چی بیاریم؟ <ArrowDown size={17} />
-                </a>
-              </Button>
-              <a href="#details" className="winter-detail-link">
-                زمان و نشانی مهمانی
+            <Button asChild className="winter-main-cta">
+              <a href="#gifts">
+                برای سفره چی بیاریم؟ <ArrowDown size={17} />
               </a>
-            </>
+            </Button>
           ) : (
             <div className="winter-gate" role="status">
               {loading
