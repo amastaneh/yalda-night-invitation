@@ -408,7 +408,7 @@
   color: #fff;
   border-color: #35573c;
 }
-.winter-gift-card.gift-confirmed {
+.winter-page .winter-gift-card.gift-confirmed {
   background: linear-gradient(155deg, #f2f0df, #e0e9d7);
   border-color: #769274;
   box-shadow: inset 0 0 0 3px #ffffff38;
@@ -3227,6 +3227,318 @@
   color: var(--muted);
   font-size: 14px;
   line-height: 2;
+}
+
+/* A quiet, readable host desk, with the same green and gold as the invitation. */
+.host-page {
+  background: radial-gradient(ellipse at 90% 0, #e5e9db, transparent 45%), #f3f1e9;
+  padding-top: 32px;
+}
+.host-heading {
+  padding: 30px;
+  border-radius: 24px;
+  background: linear-gradient(120deg, #36524a, #233d35);
+  color: #fff1d8;
+  box-shadow: 0 12px 35px #263d3510;
+}
+.host-heading .winter-eyebrow {
+  color: #dbc79c;
+  font-size: 12px;
+}
+.host-heading h1 {
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.host-heading p {
+  color: #d2ddce;
+  line-height: 1.9;
+}
+.host-heading .host-button {
+  border-color: #e7d6b050;
+  background: #ffffff0d;
+  color: #fff0d5;
+}
+.host-button {
+  min-height: 44px;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.host-button:hover {
+  background: #e6ebdf;
+  border-color: #7b9480;
+}
+.host-heading .host-button:hover {
+  background: #ffffff1c;
+}
+.host-button:focus-visible,
+.host-family-link button:focus-visible {
+  outline: 2px solid #8c7341;
+  outline-offset: 3px;
+}
+.host-stats > div {
+  position: relative;
+  padding: 20px;
+  gap: 5px;
+  border-radius: 17px;
+  background: #fffdf7;
+  box-shadow: 0 4px 15px #304c3504;
+}
+.host-stats > div > svg {
+  color: #647d61;
+  margin-bottom: 4px;
+}
+.host-stats strong {
+  font-size: 36px;
+  line-height: 1.5;
+}
+.host-stats span {
+  font-size: 13px;
+  line-height: 1.8;
+}
+.host-stats .host-stat-attending {
+  background: #e1ead8;
+  border-color: #bbcfaf;
+}
+.host-stat-attending strong {
+  color: #2c583b;
+}
+.host-gifts {
+  gap: 12px;
+  margin-block: 16px 28px;
+}
+.host-gifts > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 9px;
+  padding: 16px;
+  border: 1px solid #dbddd0;
+  border-radius: 14px;
+  background: #faf8ee;
+}
+.host-gifts > div > span {
+  font-size: 14px;
+}
+.host-gifts strong {
+  font-size: 15px;
+}
+.host-gifts progress {
+  width: 100%;
+  height: 5px;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  grid-column: 1 / -1;
+  appearance: none;
+  background: #e5e7da;
+  accent-color: #6f8b57;
+}
+.host-gifts progress::-webkit-progress-bar {
+  background: #e5e7da;
+}
+.host-gifts progress::-webkit-progress-value {
+  background: #6f8b57;
+  border-radius: 10px;
+}
+.host-gifts progress::-moz-progress-bar {
+  background: #6f8b57;
+  border-radius: 10px;
+}
+.host-gifts small {
+  grid-column: 1 / -1;
+  color: #67735d;
+  font-size: 12px;
+}
+.host-tools {
+  padding: 14px;
+  border: 1px solid #d9ded1;
+  border-radius: 18px;
+  background: #ffffff88;
+  gap: 10px;
+}
+.host-tools .host-button {
+  background: #fffdf7;
+  font-size: 13px;
+  border-color: #d0d9ca;
+}
+.host-search {
+  border-color: #d0d9ca;
+  border-radius: 12px;
+  padding-block: 10px;
+}
+.host-search:focus-within {
+  border-color: #6d8b6b;
+  box-shadow: 0 0 0 3px #6d8b6b18;
+}
+.host-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 28px 2px 16px;
+}
+.host-list-heading h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+.host-list-heading > span {
+  font-size: 13px;
+  color: #6a7869;
+}
+.host-family {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px #2e483504;
+}
+.host-family-title {
+  align-items: flex-start;
+}
+.host-family h2 {
+  font-size: 18px;
+  line-height: 1.8;
+}
+.host-family-title > span {
+  padding: 4px 8px;
+  border: 1px solid #e0e3d5;
+  border-radius: 7px;
+  background: #f4f4eb;
+  font-family: var(--font-geist), sans-serif;
+  letter-spacing: 1px;
+}
+.host-members > span {
+  border: 1px solid #e2e4d8;
+  padding: 8px 11px;
+  border-radius: 9px;
+  font-size: 14px;
+}
+.host-members small {
+  font-size: 12px;
+  color: #5e6c5d;
+}
+.host-members [data-status='attending'] {
+  border-color: #c7d7bd;
+}
+.host-members [data-status='declined'] {
+  color: #805044;
+  border-color: #e5d0c7;
+}
+.host-members [data-status='maybe'] {
+  background: #f5eddb;
+  border-color: #e5d7b5;
+}
+.host-family-gifts {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f3f3e8;
+  color: #52634b;
+  line-height: 1.9;
+}
+.host-family-gifts > svg {
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.host-family-link {
+  align-items: center;
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 0;
+  gap: 8px;
+}
+.host-family-link a {
+  padding-block: 12px;
+}
+.host-family-link button {
+  min-height: 44px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: #e5eddf;
+  color: #345338;
+  font-size: 13px;
+}
+.host-vehicle {
+  padding: 14px;
+  border: 1px solid #d8dfce;
+  border-radius: 12px;
+  gap: 8px;
+}
+.host-vehicle b {
+  justify-self: start;
+  background: #fffef8;
+  border: 1px solid #afbaa3;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-family: var(--font-geist), sans-serif;
+  font-size: 17px;
+  letter-spacing: 1.3px;
+}
+.host-empty {
+  text-align: center;
+  padding: 36px 20px;
+  border: 1px dashed #cbd4c0;
+  border-radius: 18px;
+  color: #62735a;
+  background: #fffdf7;
+}
+@media (max-width: 900px) {
+  .host-tools .host-search {
+    flex-basis: 100%;
+  }
+}
+@media (max-width: 640px) {
+  .host-page {
+    padding: 16px 14px 30px;
+  }
+  .host-heading {
+    padding: 22px 20px;
+    gap: 16px;
+    border-radius: 18px;
+  }
+  .host-heading h1 {
+    font-size: 31px;
+  }
+  .host-heading > div {
+    flex-basis: 100%;
+  }
+  .host-heading .host-button {
+    font-size: 13px;
+    padding-inline: 14px;
+  }
+  .host-stats {
+    gap: 10px;
+  }
+  .host-stats > div {
+    padding: 16px;
+  }
+  .host-stats strong {
+    font-size: 31px;
+  }
+  .host-gifts {
+    gap: 10px;
+  }
+  .host-gifts > div {
+    padding: 13px;
+  }
+  .host-gifts > div > span {
+    font-size: 13px;
+  }
+  .host-tools {
+    padding: 12px;
+  }
+  .host-tools > .host-button {
+    flex: 1 1 auto;
+  }
+  .host-family {
+    padding: 18px;
+  }
+  .host-list-heading h2 {
+    font-size: 16px;
+  }
 }
 .winter-more-details[open] {
   padding-top: 14px;

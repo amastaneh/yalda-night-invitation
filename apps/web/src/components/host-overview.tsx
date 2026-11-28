@@ -1,6 +1,18 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import { Check, Copy, ExternalLink, RefreshCw, Search } from 'lucide-react';
+import {
+  Check,
+  Copy,
+  ExternalLink,
+  RefreshCw,
+  Search,
+  Users,
+  UserRound,
+  CircleCheck,
+  Clock3,
+  CarFront,
+  Gift,
+} from 'lucide-react';
 import { requestApi } from '@/lib/transport';
 import {
   giftOptions,
@@ -78,11 +90,18 @@ export function HostOverview({
   }
   const url = (slug: string) => `${siteUrl}/invite/${slug}`;
   const total = families.flatMap((f) => f.members);
+  const visibleFamilies = families.filter(
+    (f) =>
+      (!onlyVehicles || f.vehicle) &&
+      `${f.name} ${f.slug} ${f.members.map((m) => m.name).join(' ')} ${f.vehicle?.plate || ''} ${f.vehicle?.brand || ''} ${f.vehicle?.model || ''}`.includes(
+        query.trim(),
+      ),
+  );
   return (
     <main className="host-page">
       <header className="host-heading">
         <div>
-          <span className="winter-eyebrow">YALDA · HOST</span>
+          <span className="winter-eyebrow">دورهمی یلدا · پنل میزبان</span>
           <h1>مهمان‌های شب یلدا</h1>
           <p>حضور، انتخاب‌ها و لینک دعوت؛ همه در یک نگاه.</p>
         </div>
@@ -111,34 +130,42 @@ export function HostOverview({
       )}
       <section className="host-stats" aria-label="خلاصهٔ حضور">
         <div>
+          <Users size={21} aria-hidden="true" />
           <strong>{families.length.toLocaleString('fa')}</strong>
           <span>دعوت خانوادگی</span>
         </div>
         <div>
+          <UserRound size={21} aria-hidden="true" />
           <strong>{total.length.toLocaleString('fa')}</strong>
           <span>مهمان</span>
         </div>
-        <div>
+        <div className="host-stat-attending">
+          <CircleCheck size={21} aria-hidden="true" />
           <strong>
             {total.filter((m) => m.status === 'attending').length.toLocaleString('fa')}
           </strong>
           <span>می‌آیند</span>
         </div>
         <div>
+          <Clock3 size={21} aria-hidden="true" />
           <strong>{total.filter((m) => m.status === 'pending').length.toLocaleString('fa')}</strong>
           <span>هنوز پاسخ نداده‌اند</span>
         </div>
       </section>
       <section className="host-gifts" aria-label="خلاصهٔ هدیه‌ها">
-        {giftOptions.map((o) => (
-          <div key={o.id}>
-            <span>{o.title}</span>
-            <strong>
-              {families.filter((f) => f.gifts.includes(o.id)).length.toLocaleString('fa')} /{' '}
-              {o.capacity.toLocaleString('fa')}
-            </strong>
-          </div>
-        ))}
+        {giftOptions.map((o) => {
+          const count = families.filter((f) => f.gifts.includes(o.id)).length;
+          return (
+            <div key={o.id}>
+              <span>{o.title}</span>
+              <strong>
+                {count.toLocaleString('fa')} / {o.capacity.toLocaleString('fa')}
+              </strong>
+              <progress value={count} max={o.capacity} aria-label={`ظرفیت ${o.title}`} />
+              <small>{Math.max(0, o.capacity - count).toLocaleString('fa')} باقی‌مانده</small>
+            </div>
+          );
+        })}
       </section>
       <div className="host-tools">
         <label className="host-search">
@@ -155,6 +182,7 @@ export function HostOverview({
           aria-pressed={onlyVehicles}
           onClick={() => setOnlyVehicles((value) => !value)}
         >
+          <CarFront size={17} />
           خودروها ({families.filter((f) => f.vehicle).length.toLocaleString('fa')})
         </button>
         <button
@@ -169,63 +197,65 @@ export function HostOverview({
           دعوت تست امیر و Faye <ExternalLink size={15} />
         </a>
       </div>
+      <div className="host-list-heading">
+        <h2>دعوت‌نامه‌های خانواده‌ها</h2>
+        <span>{visibleFamilies.length.toLocaleString('fa')} خانواده</span>
+      </div>
+      {visibleFamilies.length === 0 && (
+        <p className="host-empty" role="status">
+          خانواده‌ای با این مشخصات پیدا نشد.
+        </p>
+      )}
       <div className="host-families">
-        {families
-          .filter(
-            (f) =>
-              (!onlyVehicles || f.vehicle) &&
-              `${f.name} ${f.slug} ${f.members.map((m) => m.name).join(' ')} ${f.vehicle?.plate || ''} ${f.vehicle?.brand || ''} ${f.vehicle?.model || ''}`.includes(
-                query.trim(),
-              ),
-          )
-          .map((f) => (
-            <article className="host-family" key={f.slug}>
-              <div className="host-family-title">
-                <h2>{f.name}</h2>
-                <span dir="ltr">{f.slug}</span>
+        {visibleFamilies.map((f) => (
+          <article className="host-family" key={f.slug}>
+            <div className="host-family-title">
+              <h2>{f.name}</h2>
+              <span dir="ltr">{f.slug}</span>
+            </div>
+            <div className="host-members">
+              {f.members.map((m, i) => (
+                <span key={i} data-status={m.status}>
+                  {m.name}
+                  <small>{labels[m.status]}</small>
+                </span>
+              ))}
+            </div>
+            <p className="host-family-gifts">
+              <Gift size={15} aria-hidden="true" />
+              {f.gifts.length
+                ? f.gifts
+                    .map((id) => {
+                      const title = giftOptions.find((o) => o.id === id)?.title;
+                      const detail = f.giftDetails?.[id as keyof GiftDetails];
+                      return detail ? `${title}: ${giftDetailLabel(detail)}` : title;
+                    })
+                    .join(' · ')
+                : 'هنوز چیزی انتخاب نکرده‌اند'}
+            </p>
+            {f.vehicle && (
+              <div className="host-vehicle">
+                <strong>خودرو برای پارکینگ</strong>
+                <span>
+                  {f.vehicle.brand} · {f.vehicle.model} · {f.vehicle.color}
+                </span>
+                <b dir="ltr">{f.vehicle.plate}</b>
               </div>
-              <div className="host-members">
-                {f.members.map((m, i) => (
-                  <span key={i} data-status={m.status}>
-                    {m.name}
-                    <small>{labels[m.status]}</small>
-                  </span>
-                ))}
-              </div>
-              <p className="host-family-gifts">
-                {f.gifts.length
-                  ? f.gifts
-                      .map((id) => {
-                        const title = giftOptions.find((o) => o.id === id)?.title;
-                        const detail = f.giftDetails?.[id as keyof GiftDetails];
-                        return detail ? `${title}: ${giftDetailLabel(detail)}` : title;
-                      })
-                      .join(' · ')
-                  : 'هنوز چیزی انتخاب نکرده‌اند'}
-              </p>
-              {f.vehicle && (
-                <div className="host-vehicle">
-                  <strong>خودرو برای پارکینگ</strong>
-                  <span>
-                    {f.vehicle.brand} · {f.vehicle.model} · {f.vehicle.color}
-                  </span>
-                  <b dir="ltr">{f.vehicle.plate}</b>
-                </div>
-              )}
-              <div className="host-family-link">
-                <a dir="ltr" href={url(f.slug)} target="_blank" rel="noreferrer">
-                  /invite/{f.slug}
-                </a>
-                <button
-                  aria-label={`کپی لینک ${f.name}`}
-                  onClick={() => void copy(url(f.slug), f.slug)}
-                >
-                  {copied === f.slug ? <Check size={17} /> : <Copy size={17} />}
-                  {copied === f.slug ? 'کپی شد' : 'کپی لینک'}
-                </button>
-              </div>
-            </article>
-          ))}
+            )}
+            <div className="host-family-link">
+              <a dir="ltr" href={url(f.slug)} target="_blank" rel="noreferrer">
+                /invite/{f.slug}
+              </a>
+              <button
+                aria-label={`کپی لینک ${f.name}`}
+                onClick={() => void copy(url(f.slug), f.slug)}
+              >
+                {copied === f.slug ? <Check size={17} /> : <Copy size={17} />}
+                {copied === f.slug ? 'کپی شد' : 'کپی لینک'}
+              </button>
+            </div>
+          </article>
+        ))}
       </div>
       <footer>به میزبانی امیر و فی · این صفحه فقط برای مشاهده است.</footer>
     </main>
