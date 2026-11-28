@@ -57,9 +57,9 @@ describe('JSON guest invitations', () => {
     ).toThrow('معتبر');
     applyGuestRequest(state, {
       ...choose(slug, 'pastry'),
-      body: { kind: 'pastry', selected: true, detail: 'قطاب یزدی' },
+      body: { kind: 'pastry', selected: true, detail: 'شیرینی نخودچی' },
     });
-    expect(overview(state)[0].giftDetails.pastry).toBe('قطاب یزدی');
+    expect(overview(state)[0].giftDetails.pastry).toBe('شیرینی نخودچی');
     applyGuestRequest(state, {
       ...choose(slug, 'pomegranate'),
       body: { kind: 'pomegranate', selected: true, detail: 'چیزکیک انار' },

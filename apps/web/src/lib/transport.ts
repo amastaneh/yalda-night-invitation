@@ -5,6 +5,21 @@ export async function requestApi<T>(
   data?: unknown,
   method?: string,
 ): Promise<T> {
+  if (
+    process.env.NODE_ENV === 'development' &&
+    process.env.NEXT_PUBLIC_LOCAL_PARTY_MODE !== 'live' &&
+    typeof window !== 'undefined' &&
+    ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) &&
+    endpoint.startsWith('/api/party')
+  ) {
+    const { localPartyRequest } = await import('./local-party');
+    return localPartyRequest({
+      path: `/api${path}`,
+      method: method || (data === undefined ? 'GET' : 'POST'),
+      session: token || '',
+      body: data,
+    }) as T;
+  }
   const direct =
     endpoint.startsWith('/api/party') || new URL(endpoint).hostname === 'script.google.com';
   const requestMethod = method || (data === undefined ? 'GET' : 'POST');

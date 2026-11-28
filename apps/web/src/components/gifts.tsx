@@ -106,9 +106,7 @@ export function Gifts({
           const detailOptions = giftDetailOptions[detailKind];
           const locked = mine && !editing[option.id];
           const currentDetail =
-            (mine && !editing[option.id]
-              ? state?.detail
-              : draftDetails[detailKind] || state?.detail) || detailOptions?.[0];
+            mine && !editing[option.id] ? state?.detail : draftDetails[detailKind] || state?.detail;
           const selectionLabel =
             option.id === 'pomegranate'
               ? `یک ظرف ${giftDetailLabel(state?.detail || giftDetailOptions.pomegranate[0])}`
@@ -133,7 +131,7 @@ export function Gifts({
                 if (event.key === 'Enter' || event.key === ' ') animate(option.id);
               }}
               initial={false}
-              whileHover={{ y: -6 }}
+              whileHover={{ y: mine ? 0 : -6 }}
               transition={{ type: 'spring', stiffness: 260, damping: 22 }}
             >
               <div className="gift-card-top">
@@ -276,49 +274,43 @@ export function Gifts({
                 <div className="birthday-gift-details">
                   <span className="birthday-gift-label">هدیهٔ گروهی تولد</span>
                   <p>برای پلی‌استیشن ۵ اسلیم دیسک‌خور و بازی جی‌تی‌ای ۶.</p>
-                  <details>
-                    <summary>چطور هدیه بدهیم؟</summary>
-                    <p>
-                      در آمازون کانادا، کارت هدیهٔ دیجیتال با مبلغ ۲۵ دلار کانادا و ارسال ایمیلی را
-                      انتخاب کنید. اعتبار کارت‌ها در این حساب آمازون جمع می‌شود تا هدیه را براش بخرم
-                      😄
-                    </p>
-                    <p>ایمیل دریافت هدیه:</p>
-                    <button
-                      className="gift-email-copy"
-                      aria-label="کپی ایمیل دریافت هدیه"
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(birthdayGift.email);
-                          setEmailCopied(true);
-                          setTimeout(() => setEmailCopied(false), 1800);
-                        } catch {
-                          toast.error('ایمیل را انتخاب و کپی کنید.');
-                        }
-                      }}
-                    >
-                      <span dir="ltr">{birthdayGift.email}</span>
-                      {emailCopied ? <Check size={14} /> : <Copy size={14} />}
-                    </button>
-                    <a
-                      className="gift-digital-link"
-                      href={birthdayGift.digitalUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      باز کردن کارت هدیهٔ دیجیتال
-                    </a>
-                  </details>
+                  {mine && (
+                    <section className="gift-send-guide" aria-label="راهنمای ارسال کارت هدیه">
+                      <h4>چطور هدیه بدهیم؟</h4>
+                      <p>
+                        در آمازون کانادا، کارت هدیهٔ دیجیتال با مبلغ ۲۵ دلار کانادا و ارسال ایمیلی را
+                        انتخاب کنید. اعتبار کارت‌ها در این حساب آمازون جمع می‌شود تا هدیه را براش
+                        بخرم 😄
+                      </p>
+                      <p>ایمیل دریافت هدیه:</p>
+                      <button
+                        className="gift-email-copy"
+                        aria-label="کپی ایمیل دریافت هدیه"
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(birthdayGift.email);
+                            setEmailCopied(true);
+                            setTimeout(() => setEmailCopied(false), 1800);
+                          } catch {
+                            toast.error('ایمیل را انتخاب و کپی کنید.');
+                          }
+                        }}
+                      >
+                        <span dir="ltr">{birthdayGift.email}</span>
+                        {emailCopied ? <Check size={14} /> : <Copy size={14} />}
+                      </button>
+                    </section>
+                  )}
                 </div>
               )}
               <Button
                 variant="outline"
-                disabled={disabled}
+                disabled={disabled || (!locked && !!detailOptions && !currentDetail)}
                 onClick={() => {
                   if (locked) {
                     setDraftDetails((previous) => ({
                       ...previous,
-                      [detailKind]: state?.detail || detailOptions?.[0],
+                      [detailKind]: state?.detail,
                     }));
                     setEditing((previous) => ({ ...previous, [option.id]: true }));
                   } else void choose(option.id, true, currentDetail);
@@ -381,7 +373,7 @@ export function Gifts({
                   خرید پین شیر و خورشید <ArrowUpLeft size={12} />
                 </a>
               )}
-              {option.id === 'gift-card' && (
+              {option.id === 'gift-card' && mine && (
                 <a
                   className="gift-source"
                   href={birthdayGift.shopUrl}

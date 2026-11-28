@@ -100,10 +100,12 @@ test('reserves at most two gifts and releases them', async ({ page }) => {
     guestSession,
   );
   await page.goto('/invite/');
+  await page.getByRole('radio', { name: /انار دانه‌شده/ }).check();
   await page.getByRole('button', { name: 'انتخاب دسر انار', exact: true }).click();
   await expect(
     page.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }),
   ).toBeVisible();
+  await page.getByRole('radio', { name: 'شیرینی زبان نرم', exact: true }).check();
   await page.getByRole('button', { name: 'انتخاب شیرینی', exact: true }).click();
   await expect(page.getByRole('button', { name: 'انتخاب کارت هدیه', exact: true })).toBeDisabled();
   await expect(

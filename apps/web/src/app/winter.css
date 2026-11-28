@@ -332,6 +332,9 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
+.winter-gift-grid:has(.gift-confirmed) {
+  align-items: start;
+}
 .winter-gift-card {
   min-width: 0;
   position: relative;
@@ -2033,6 +2036,22 @@
   color: #304d3d;
   font-size: 11px;
 }
+.gift-send-guide {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #b6bd9e;
+  border-radius: 12px;
+  background: #ffffff50;
+}
+.gift-send-guide h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #35573c;
+  margin-bottom: 8px;
+}
+.gift-send-guide .gift-email-copy {
+  min-height: 44px;
+}
 .gift-email-copy {
   display: flex;
   flex-wrap: wrap;
@@ -2126,12 +2145,10 @@
   font-size: 13px;
   font-weight: 600;
   padding: 11px 9px;
-  border-color: #7d916e;
-  background: #e0e7d3;
 }
 .gift-detail-picker label.detail-primary.detail-selected {
-  background: #ceddc3;
-  border-color: #52724b;
+  background: #d3dfc9;
+  border-color: #819879;
 }
 .gift-detail-picker .detail-primary small {
   margin-inline-start: auto;
@@ -2184,13 +2201,11 @@
 }
 .gift-detail-picker label.detail-preferred {
   font-weight: 600;
-  border-color: #8a9a7c;
-  background: #e0e7d3;
   min-height: 39px;
 }
 .gift-detail-picker label.detail-preferred.detail-selected {
-  background: #ceddc3;
-  border-color: #52724b;
+  background: #d3dfc9;
+  border-color: #819879;
 }
 .winter-details > div > .venue-address {
   min-width: 0;
@@ -3186,34 +3201,89 @@
   font-size: 14px;
 }
 .venue-location-copy .venue-route-links {
+  display: grid;
+  grid-template-columns: 1fr;
   margin-top: 0;
   gap: 10px;
 }
+.venue-location-copy {
+  container: venue-copy / inline-size;
+}
 .venue-route-links .venue-map-button,
 .venue-route-links .venue-parking-button {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 17px;
   align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 9px 12px;
-  border-radius: 9px;
-  font-size: 13px;
+  gap: 12px;
+  min-height: 80px;
+  padding: 13px 15px;
+  border: 1px solid #d6c79e45;
+  border-radius: 14px;
+  background: #ffffff06;
+  color: #f4ead5;
+  text-align: right;
+  text-decoration: none;
+  transition:
+    background 0.22s,
+    border-color 0.22s,
+    box-shadow 0.22s;
+}
+.venue-route-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #dbbd7b16;
+  color: #e5c98e;
+}
+.venue-route-label {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.venue-route-links .venue-route-label strong {
+  font-size: 15px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+.venue-route-links .venue-route-label small {
+  color: #c5d1c2;
+  font-size: 12px;
   line-height: 1.7;
 }
-.venue-map-button {
-  background: #e7d5ae;
-  color: #243d32;
+.venue-route-links .venue-route-arrow {
+  color: #d3c395;
+  transition: transform 0.22s;
 }
-.venue-parking-button {
-  border: 1px solid #dfbd8270;
-  color: #eee0c2;
+.venue-route-links a:focus-visible {
+  outline: 2px solid #e4c78e;
+  outline-offset: 4px;
+}
+.venue-route-links a:active {
+  background: #ffffff15;
+}
+@container venue-copy (min-width: 440px) {
+  .venue-location-copy .venue-route-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .venue-route-links a:hover {
-  filter: brightness(1.1);
+  background: #ffffff0f;
+  border-color: #d8c18a99;
+  box-shadow: 0 5px 18px #132c2915;
 }
-.venue-route-links a svg {
-  transform: rotate(135deg);
+.venue-route-links a:hover .venue-route-arrow {
+  transform: translate(-2px, -2px);
+}
+.venue-route-links svg {
   flex-shrink: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .venue-route-links a,
+  .venue-route-links .venue-route-arrow {
+    transition: none;
+  }
 }
 .winter-details > .winter-more-details {
   grid-column: 1 / -1;
@@ -3221,12 +3291,113 @@
   padding: 0 4px;
   font-size: 14px;
 }
-.venue-arrival-note {
+.venue-contact-block {
   grid-column: 1 / -1;
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+  border-top: 1px solid #d6c79e30;
+  background: #ffffff04;
+}
+.venue-contact-intro h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: #efddb5;
+  line-height: 1.9;
+}
+.venue-contact-intro p {
+  margin-top: 6px;
+  font-size: 13px;
   line-height: 2;
+  color: #cbd6c6;
+}
+.venue-contact-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.venue-contact-links a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #e1d0a9;
+  border-radius: 13px;
+  color: #263f32;
+  background: #eee2c6;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.venue-contact-name {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.venue-contact-links .venue-contact-name small {
+  color: #5c6d52;
+  font-size: 11px;
+}
+.venue-contact-links .venue-contact-name strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.venue-contact-phone-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #345c4312;
+  color: #355b43;
+}
+.venue-contact-links .venue-contact-number {
+  grid-column: 1 / -1;
+  font-family: var(--font-geist), sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-align: right;
+  white-space: nowrap;
+  color: #355442;
+}
+.venue-contact-links a:hover {
+  background: #f6ecd7;
+  box-shadow: 0 4px 18px #0b211d20;
+}
+.venue-contact-links a:focus-visible {
+  outline: 2px solid #edce8e;
+  outline-offset: 4px;
+}
+.venue-contact-links a:active {
+  background: #e1d3b1;
+}
+@media (max-width: 1279px) {
+  .venue-contact-block {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+@media (max-width: 640px) {
+  .venue-contact-block {
+    padding: 20px;
+  }
+  .venue-contact-links a {
+    padding: 11px;
+  }
+  .venue-contact-links .venue-contact-number {
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .venue-contact-links a {
+    transition: none;
+  }
 }
 
 /* A quiet, readable host desk, with the same green and gold as the invitation. */
@@ -3597,5 +3768,111 @@
 @media (prefers-reduced-motion: reduce) {
   .winter-rsvp .confirmation {
     animation: none;
+  }
+}
+
+/* Shared feedback for directions, calls and calendar actions. */
+.winter-details .venue-action {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 0.22s,
+    box-shadow 0.22s,
+    border-color 0.22s;
+}
+.venue-action::after {
+  content: '';
+  position: absolute;
+  inset: -70% auto -70% -70%;
+  width: 45%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #fff3, transparent);
+  opacity: 0;
+  transform: translateX(-180%) skewX(-18deg);
+  animation: venue-action-sheen 8.5s ease-in-out infinite;
+  animation-delay: var(--venue-shine-delay, 0s);
+}
+.venue-parking-button {
+  --venue-shine-delay: -3.5s;
+}
+.venue-contact-links > a:first-child {
+  --venue-shine-delay: -1.5s;
+}
+.venue-contact-links > a:nth-child(2) {
+  --venue-shine-delay: -5.5s;
+}
+.calendar-options > summary.venue-action {
+  --venue-shine-delay: -7s;
+}
+.venue-action .venue-route-icon,
+.venue-action .venue-contact-phone-icon,
+.calendar-options > summary.venue-action > svg {
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 0.25s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .winter-details .venue-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 22px #0c242526;
+    border-color: #e6cb90;
+  }
+  .venue-action:hover .venue-route-icon {
+    transform: rotate(-7deg) scale(1.08);
+    background: #dbbd7b2b;
+  }
+  .venue-action:hover .venue-contact-phone-icon {
+    transform: rotate(-12deg) scale(1.08);
+    background: #345c4320;
+  }
+  .calendar-options > summary.venue-action:hover > svg {
+    transform: rotate(-8deg) scale(1.08);
+  }
+}
+.winter-details .venue-action:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.08s;
+  box-shadow: inset 0 2px 8px #14362b20;
+}
+.venue-action:focus-visible {
+  outline: 2px solid #ebcc8d;
+  outline-offset: 4px;
+}
+@keyframes venue-action-sheen {
+  0%,
+  74% {
+    opacity: 0;
+    transform: translateX(-180%) skewX(-18deg);
+  }
+  78% {
+    opacity: 0.7;
+  }
+  94% {
+    opacity: 0.7;
+    transform: translateX(420%) skewX(-18deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(420%) skewX(-18deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .venue-action::after {
+    animation: none;
+  }
+  .winter-details .venue-action,
+  .venue-action .venue-route-icon,
+  .venue-action .venue-contact-phone-icon,
+  .calendar-options > summary.venue-action > svg {
+    transition: none;
+  }
+  .winter-details .venue-action:hover,
+  .winter-details .venue-action:active,
+  .venue-action:hover .venue-route-icon,
+  .venue-action:hover .venue-contact-phone-icon,
+  .calendar-options > summary.venue-action:hover > svg {
+    transform: none;
   }
 }

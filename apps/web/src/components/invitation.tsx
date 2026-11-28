@@ -5,12 +5,16 @@ import Image from 'next/image';
 import venueLinks from '../../../../config/venue-links.json';
 import {
   ArrowDown,
+  ArrowUpLeft,
+  Building2,
   BookOpen,
   CalendarDays,
   Clock,
   MapPin,
+  Phone,
   Snowflake,
   Sparkles,
+  SquareParking,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
@@ -113,6 +117,14 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
     }
   }
   const event = data?.event;
+  const contacts = (event?.contact || '')
+    .split('·')
+    .map((phone) => phone.trim())
+    .filter(Boolean)
+    .map((phone, i) => ({
+      phone: phone.replace(/[^+0-9]/g, ''),
+      name: event?.host.split(' و ')[i] || 'میزبان',
+    }));
   const poem = fortune ? fortunes[fortune.index] : null;
   return (
     <main className="invitation light winter-page">
@@ -228,9 +240,10 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
                   </span>
                   {event.venue.includes('Sloane') && <small>{event.entrance}</small>}
                 </span>
-                <div className="venue-route-links">
+                <nav className="venue-route-links" aria-label="مسیریابی مهمانی">
                   <a
-                    className="venue-map-button"
+                    className="venue-map-button venue-action"
+                    aria-label="موقعیت ساختمان"
                     href={
                       event.venue.includes('Sloane')
                         ? venueLinks.building
@@ -239,19 +252,34 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    موقعیت ساختمان <ArrowDown size={14} />
+                    <span className="venue-route-icon" aria-hidden="true">
+                      <Building2 size={22} strokeWidth={1.6} />
+                    </span>
+                    <span className="venue-route-label">
+                      <strong>ساختمان</strong>
+                      <small>برج شرقی</small>
+                    </span>
+                    <ArrowUpLeft className="venue-route-arrow" size={17} aria-hidden="true" />
                   </a>
                   {event.venue.includes('Sloane') && (
                     <a
-                      className="venue-parking-button"
+                      className="venue-parking-button venue-action"
+                      aria-label="مسیریابی پارکینگ برج شرقی و غربی"
                       href={venueLinks.parking}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      مسیریابی پارکینگ برج شرقی و غربی <ArrowDown size={14} />
+                      <span className="venue-route-icon" aria-hidden="true">
+                        <SquareParking size={22} strokeWidth={1.6} />
+                      </span>
+                      <span className="venue-route-label">
+                        <strong>پارکینگ</strong>
+                        <small>برج شرقی و غربی</small>
+                      </span>
+                      <ArrowUpLeft className="venue-route-arrow" size={17} aria-hidden="true" />
                     </a>
                   )}
-                </div>
+                </nav>
               </div>
               {event.venue.includes('Sloane') && (
                 <div className="venue-photo">
@@ -265,11 +293,39 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
                   <span>اینجا منتظرتونیم</span>
                 </div>
               )}
+              {contacts.length > 0 && (
+                <section className="venue-contact-block" aria-label="هماهنگی ورود و پارکینگ">
+                  <div className="venue-contact-intro">
+                    <h3>هماهنگی ورود و پارکینگ</h3>
+                    <p>
+                      برای ورود یا پارکینگ، با یکی از ما هماهنگ کنید؛ مشخصات خودرو را هم در پاسخ
+                      دعوت بنویسید.
+                    </p>
+                  </div>
+                  <div className="venue-contact-links">
+                    {contacts.map(({ name, phone }) => (
+                      <a
+                        key={phone}
+                        className="venue-action"
+                        href={`tel:${phone.length === 10 ? '+1' : ''}${phone}`}
+                        aria-label={`تماس با ${name}`}
+                      >
+                        <span className="venue-contact-name">
+                          <small>تماس با</small>
+                          <strong>{name}</strong>
+                        </span>
+                        <span className="venue-contact-phone-icon" aria-hidden="true">
+                          <Phone size={17} strokeWidth={1.7} />
+                        </span>
+                        <span className="venue-contact-number" dir="ltr">
+                          {phone.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1 $2 $3')}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
-            <p className="venue-arrival-note">
-              برای هماهنگی ورود و پارکینگ، لطفاً پیش از مهمانی خبرمان کنید؛ اگر با خودرو می‌آیید،
-              مشخصاتش را در پاسخ دعوت بنویسید.
-            </p>
           </section>
           {event.features.gifts && <Gifts data={data} reload={reload} />}
           <section className="winter-bottom winter-width">
@@ -378,7 +434,7 @@ function CalendarOptions({ data }: { data: InvitationData }) {
   const links = calendarLinks(data.event);
   return (
     <details className="calendar-options">
-      <summary className="button button-outline">
+      <summary className="button button-outline venue-action">
         <CalendarDays size={16} />
         ثبت در تقویم
       </summary>

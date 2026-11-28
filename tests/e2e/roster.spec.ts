@@ -20,12 +20,15 @@ test('a roster family uses the guest API and persistent response flow', async ({
     page.getByRole('link', { name: 'مسیریابی پارکینگ برج شرقی و غربی', exact: true }),
   ).toHaveAttribute('href', 'https://maps.app.goo.gl/xQKFCpcaZiyjCTCa8');
   await expect(page.getByRole('button', { name: 'کپی ایمیل دریافت هدیه' })).toBeHidden();
-  await page.getByText('چطور هدیه بدهیم؟', { exact: true }).click();
-  await expect(page.getByRole('button', { name: 'کپی ایمیل دریافت هدیه' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'راهنمای ارسال کارت هدیه' })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'خرید پین شیر و خورشید' })).toHaveAttribute(
     'href',
     'https://iranopasmigirim.com/fa/ribbon',
   );
+  await expect(page.locator('.gift-detail-picker input:checked')).toHaveCount(0);
+  await expect(page.getByRole('radio', { name: 'قطاب یزدی', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'انتخاب دسر انار', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'انتخاب شیرینی', exact: true })).toBeDisabled();
   await page.getByRole('radio', { name: 'ژله انار', exact: true }).check();
   await expect(page.getByRole('region', { name: 'جزئیات مهمانی' })).toContainText(
     'Sloane Apartments - East Tower',
@@ -33,10 +36,21 @@ test('a roster family uses the guest API and persistent response flow', async ({
   await expect(page.getByRole('region', { name: 'جزئیات مهمانی' })).toContainText(
     '29 York Garden Wy',
   );
+  await expect(
+    page.locator('.venue-location-card .venue-contact-links a[href^="tel:"]'),
+  ).toHaveCount(2);
+  await expect(page.getByRole('link', { name: 'خرید از آمازون کانادا' })).toBeHidden();
+  await page.getByRole('button', { name: 'انتخاب کارت هدیه', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'راهنمای ارسال کارت هدیه' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'کپی ایمیل دریافت هدیه' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'خرید از آمازون کانادا' })).toHaveAttribute(
     'href',
     'https://www.amazon.ca/dp/B0F2N3HK6N?th=1&gpo=25',
   );
+  await page.getByRole('button', { name: 'تغییر نظر دربارهٔ کارت هدیه', exact: true }).click();
+  await page.getByRole('button', { name: 'لغو انتخاب کارت هدیه', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'خرید از آمازون کانادا' })).toBeHidden();
+  await expect(page.getByRole('region', { name: 'راهنمای ارسال کارت هدیه' })).toHaveCount(0);
   await page.getByRole('button', { name: 'انتخاب دسر انار', exact: true }).click();
   await expect(
     page.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }),

@@ -23,4 +23,6 @@ The readonly host page fetches current statuses, gifts and vehicles, shows capac
 
 ## Local workflow
 
-For GitHub-backed routes locally, set `GITHUB_TOKEN` and `PARTY_DATA_ENCRYPTION_KEY` in `apps/web/.env.local`, using a separate test repository/branch if testing writes. Automated family browser tests intercept `/api/party` and exercise the production guest protocol and state rules against a fresh in-memory store per test; they never write live party responses. Existing D1 browser tests also stay isolated from GitHub. Do not put credentials in committed files.
+`pnpm dev` on localhost previews every roster family entirely in browser memory. It does not call GitHub, localStorage or IndexedDB; refreshing the page discards all RSVP, gift, vehicle and fortune changes. No credentials are needed for this preview. Production deployments always use the real GitHub API.
+
+To opt into GitHub-backed routes during local development, set `NEXT_PUBLIC_LOCAL_PARTY_MODE=live`, `GITHUB_TOKEN` and `PARTY_DATA_ENCRYPTION_KEY` in `apps/web/.env.local`, using a separate test repository/branch if testing writes. Automated family browser tests explicitly use the API transport, intercept `/api/party` and exercise the production guest protocol and state rules against a fresh in-memory store per test; they never write live party responses. Existing D1 browser tests also stay isolated from GitHub. Do not put credentials in committed files.

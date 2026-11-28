@@ -10,18 +10,18 @@ export const giftOptions = [
     emoji: '🍎',
   },
   {
-    id: 'gift-card',
-    title: 'کارت هدیه',
-    note: 'آمازون کانادا · کارت دیجیتال ۲۵ دلاری',
-    capacity: 20,
-    emoji: '🎁',
-  },
-  {
     id: 'pastry',
     title: 'شیرینی',
     note: 'یک بسته کوچیک کافیه؛ به ترتیب علاقه مرتب شده.',
     capacity: 4,
     emoji: '🍰',
+  },
+  {
+    id: 'gift-card',
+    title: 'کارت هدیه',
+    note: 'آمازون کانادا · کارت دیجیتال ۲۵ دلاری',
+    capacity: 20,
+    emoji: '🎁',
   },
   {
     id: 'pin',
@@ -46,7 +46,6 @@ export const giftDetailOptions = {
     'شیرینی ناپلئونی',
     'باسلوق گردویی',
     'شیرینی نخودچی',
-    'قطاب یزدی',
     'سایر شیرینی‌ها',
   ],
 } as const;

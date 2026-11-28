@@ -33,7 +33,11 @@ export default defineConfig({
         {
           command: 'pnpm --filter @yalda/web dev --port 3001',
           url: origin,
-          env: { NEXT_PUBLIC_API_URL: 'http://127.0.0.1:8788', NEXT_DIST_DIR: '.next-e2e' },
+          env: {
+            NEXT_PUBLIC_API_URL: 'http://127.0.0.1:8788',
+            NEXT_DIST_DIR: process.env.E2E_DIST_DIR || '.next-e2e',
+            NEXT_PUBLIC_LOCAL_PARTY_MODE: 'live',
+          },
           timeout: 120000,
         },
       ]
