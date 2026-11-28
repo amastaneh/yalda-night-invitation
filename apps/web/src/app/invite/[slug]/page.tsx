@@ -3,7 +3,7 @@ import guests from '../../../../../../config/guests.json';
 
 export const dynamicParams = false;
 export function generateStaticParams() {
-  return [{ slug: 'test' }, ...guests.map(({ slug }) => ({ slug }))];
+  return guests.map(({ slug }) => ({ slug }));
 }
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

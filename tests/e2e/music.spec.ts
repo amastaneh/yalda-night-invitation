@@ -1,9 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, invitationPath } from './party-fixture';
 
 test('music plays both local files, switches tracks, and respects a deliberate pause', async ({
   page,
 }) => {
-  await page.goto('/invite/test/');
+  await page.goto(invitationPath);
   const player = page.locator('.party-music');
   const audio = player.locator('audio');
   await expect(player).toBeVisible();

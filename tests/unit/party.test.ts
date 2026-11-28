@@ -120,19 +120,45 @@ describe('JSON guest invitations', () => {
       (await response.json()) as { status: number; data: { families: unknown[] } };
     const result = await parse(await POST(request(hosting.hostPath)));
     expect(result.status).toBe(200);
-    expect(result.data.families).toHaveLength(18);
+    expect(result.data.families).toHaveLength(guests.length);
     expect((await parse(await POST(request('wrong')))).status).toBe(403);
     expect(
       (await parse(await POST(request(hosting.hostPath, 'https://other.example')))).status,
     ).toBe(403);
     expect(fetch).toHaveBeenCalledTimes(1);
   });
-  it('defines the 18 requested families with unique six-digit links and 37 guests', () => {
-    expect(guests).toHaveLength(18);
-    expect(new Set(guests.map((f) => f.slug)).size).toBe(18);
+  it('defines roster families with unique six-digit links and named members', () => {
+    expect(guests.length).toBeGreaterThan(0);
+    expect(new Set(guests.map((f) => f.slug)).size).toBe(guests.length);
     expect(guests.every((f) => /^[0-9]{6}$/.test(f.slug))).toBe(true);
-    expect(guests.flatMap((f) => f.members)).toHaveLength(37);
-    expect(guests.some((f) => f.members.includes('Faye'))).toBe(false);
+    expect(
+      guests.every(
+        (f) => f.name.trim() && f.members.length > 0 && f.members.every((name) => name.trim()),
+      ),
+    ).toBe(true);
+  });
+  it('saves any roster family in the host overview and enforces shared gift capacity', () => {
+    const state = emptyState();
+    const family = guests.at(-1)!;
+    const otherFamily = guests.find((f) => f.slug !== family.slug)!;
+    applyGuestRequest(state, choose(family.slug, 'pin'));
+    expect(() => applyGuestRequest(state, choose(otherFamily.slug, 'pin'))).toThrow('ظرفیت');
+    applyGuestRequest(state, {
+      path: '/api/guest/rsvp',
+      method: 'POST',
+      session: family.slug,
+      body: {
+        revision: 1,
+        members: family.members.map((_, i) => ({ id: String(i + 1), status: 'attending' })),
+        vehicle: { brand: 'Toyota', model: 'Corolla', color: 'سفید', plate: 'TEST 025' },
+      },
+    });
+    expect(overview(state).find((f) => f.slug === family.slug)).toMatchObject({
+      gifts: ['pin'],
+      vehicle: { plate: 'TEST 025' },
+      members: family.members.map((name) => ({ name, status: 'attending' })),
+    });
+    expect(invitationFor(state, family.slug).vehicle?.plate).toBe('TEST 025');
   });
   it('shows only the selected family and rejects unknown/test identifiers', () => {
     const state = emptyState();

@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, invitationPath } from './party-fixture';
 
 test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'no-preference' });
 
 test('mobile gift art animates on first appearance and restarts on repeated touches', async ({
   page,
 }) => {
-  await page.goto('/invite/test/');
+  await page.goto(invitationPath);
   for (const kind of ['pomegranate', 'gift-card', 'pastry', 'pin']) {
     const card = page.locator(`.gift-${kind}`);
     await card.locator('.gift-object').scrollIntoViewIfNeeded();

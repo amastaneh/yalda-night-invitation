@@ -1,10 +1,10 @@
 # Simple JSON invitations
 
-- `config/guests.json`: the host-supplied 18 families, member names and stable unique six-digit slug strings. Edit this file and push `main` to update the guest list. There is no add/edit/delete interface.
+- `config/guests.json`: the host-supplied families, member names and unique six-digit slug strings. Edit this file and push `main` to update the guest list. Every invitation path is generated from this file; no family's name or slug needs a code change. There is no add/edit/delete interface.
 - `config/event.json`: fixed party details.
 - `config/venue-links.json`: the host-supplied building and parking map URLs.
 - `config/hosting.json`: site URL and readonly host dashboard path.
-- `/invite/test`: isolated Amir and Faye preview. Its choices and RSVP are stored only in browser localStorage and never sent to GitHub.
+- `/invite/<slug>`: ordinary family invitations, all using the same GitHub storage, gift capacities, attendance and vehicle registration. Only slugs in the guest JSON are valid; there is no special test path or browser-only preview.
 - `/invite/<six-digit-slug>`: a real household invitation. Guest responses are saved through `/api/party`.
 
 ## One-time connection
@@ -23,4 +23,4 @@ The readonly host page fetches current statuses, gifts and vehicles, shows capac
 
 ## Local workflow
 
-`/invite/test` works without credentials. For the real GitHub route locally, set `GITHUB_TOKEN` in `apps/web/.env.local` using a separate test repository/branch if testing writes. Existing D1 browser tests stay isolated from GitHub. Do not put credentials in committed files.
+For GitHub-backed routes locally, set `GITHUB_TOKEN` and `PARTY_DATA_ENCRYPTION_KEY` in `apps/web/.env.local`, using a separate test repository/branch if testing writes. Automated family browser tests intercept `/api/party` and exercise the production guest protocol and state rules against a fresh in-memory store per test; they never write live party responses. Existing D1 browser tests also stay isolated from GitHub. Do not put credentials in committed files.

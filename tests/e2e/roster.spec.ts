@@ -1,18 +1,17 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, fixtureFamily, invitationPath } from './party-fixture';
 import AxeBuilder from '@axe-core/playwright';
 import guests from '../../config/guests.json' with { type: 'json' };
 import hosting from '../../config/hosting.json' with { type: 'json' };
-test('test invitation is Amir and Faye, persists locally and never touches the guest backend', async ({
-  page,
-}) => {
+test('a roster family uses the guest API and persistent response flow', async ({ page }) => {
   const requests: string[] = [];
   page.on('request', (r) => {
     if (r.url().includes('/api/')) requests.push(r.url());
   });
-  await page.goto('/invite/test');
+  await page.goto(invitationPath);
   await expect(
-    page.getByRole('heading', { name: 'خانوادهٔ نازنین امیر و Faye', exact: true }),
+    page.getByRole('heading', { name: `خانوادهٔ نازنین ${fixtureFamily.name}`, exact: true }),
   ).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`${invitationPath}$`));
   await expect(page.getByRole('link', { name: 'موقعیت ساختمان', exact: true })).toHaveAttribute(
     'href',
     'https://share.google/USrNNIEMeRyXecRvn',
@@ -75,7 +74,7 @@ test('test invitation is Amir and Faye, persists locally and never touches the g
   ).toBeVisible();
   await expect(dessert.locator('.gift-selection-summary')).toContainText('یک ظرف چیزکیک انار');
   await expect(dessert.getByRole('radio')).toHaveCount(0);
-  expect(requests).toEqual([]);
+  expect(requests.some((url) => url.includes('/api/party'))).toBe(true);
   expect(
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()).violations.filter(
       (v) => v.impact === 'serious' || v.impact === 'critical',
@@ -119,7 +118,7 @@ test('readonly host page shows all families and searches without edit controls',
   );
   await page.goto(`/${hosting.hostPath}`);
   await expect(page.getByRole('heading', { name: 'مهمان‌های شب یلدا' })).toBeVisible();
-  await expect(page.locator('.host-family')).toHaveCount(18);
+  await expect(page.locator('.host-family')).toHaveCount(guests.length);
   await expect(page.locator('.host-family').first()).toContainText('پین شیر و خورشید');
   await expect(page.locator('.host-family').first()).toContainText('TEST 123');
   await page.getByRole('button', { name: 'خودروها (۱)', exact: true }).click();

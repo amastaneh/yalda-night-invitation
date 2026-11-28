@@ -1,5 +1,5 @@
-import guests from '../../../config/guests.json';
-import event from '../../../config/event.json';
+import guests from '../../../config/guests.json' with { type: 'json' };
+import event from '../../../config/event.json' with { type: 'json' };
 import {
   vehicleSchema,
   type Attendance,

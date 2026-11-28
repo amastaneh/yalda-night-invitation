@@ -4,7 +4,7 @@ A Persian-first family invitation for a Toronto Yalda gathering. The Vercel Next
 
 The current guest page opens with an unchanged full-width winter dusk photograph, continuously animated candle flames and tea steam, a clear loading state, compact family RSVP and four optional gift choices. Each family can reserve at most two choices; the pin has one shared slot. Daily Hafez fortunes persist per family and Toronto calendar day. Greeting cards have been removed.
 
-The 18 families and their six-digit slugs live in `config/guests.json`; event details live in `config/event.json`. Guest URLs are `/invite/103617`. `/invite/test` is a separate browser-only preview for Amir and Faye and never uses real gift capacity. The host path in `config/hosting.json` opens a readonly dashboard with attendance, gift totals, search and invitation-link copying. See [JSON setup](docs/GITHUB-JSON.md). The earlier Sheets and D1 code remains available for historical local workflows.
+Families, member names and six-digit invitation slugs live only in `config/guests.json`; event details and host names live in `config/event.json`. Each guest URL is `/invite/<slug>` and uses the same shared gift capacity and server-side response storage. There is no special test family, alias or browser-only invitation. The host path in `config/hosting.json` opens a readonly dashboard with attendance, gift totals, search and invitation-link copying. See [JSON setup](docs/GITHUB-JSON.md). The earlier Sheets and D1 code remains available for historical local workflows.
 
 ## Local development
 

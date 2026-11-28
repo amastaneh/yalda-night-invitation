@@ -1,3 +1,5 @@
+import event from '../../../config/event.json' with { type: 'json' };
+
 // Fixed presentation and party choices live in code, not in editable guest data.
 export const giftOptions = [
   {
@@ -63,7 +65,7 @@ export const fortunes = [
   { poem: 'به حسن و خلق و وفا کس به یار ما نرسد\nتو را در این سخن انکار کار ما نرسد', ghazal: 153 },
 ] as const;
 export type DailyFortune = { day: string; index: number };
-export const partyHosts = 'امیر و فی';
+export const partyHosts = event.host;
 export function householdTitle(name: string, memberCount: number) {
   const clean = name.trim().replace(/^خانواده[ٔ‌ی‌]*\s+/u, '');
   return memberCount > 1 ? `خانوادهٔ نازنین ${clean}` : clean;

@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, invitationPath } from './party-fixture';
 
 test.use({ reducedMotion: 'no-preference' });
 
 test('daily fortune has a reveal ceremony on first draw and repeat views, preserving the same poem', async ({
   page,
 }) => {
-  await page.goto('/invite/test/?reset=1#hafez');
+  await page.goto(`${invitationPath}#hafez`);
   await page.getByRole('button', { name: 'نیت کردم', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();

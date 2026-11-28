@@ -2,7 +2,7 @@ import { test, expect, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
 import type { InvitationData } from '../../packages/shared/src';
-import { householdTitle } from '../../packages/shared/src/party';
+import { householdTitle, partyHosts } from '../../packages/shared/src/party';
 const access = JSON.parse(readFileSync('.local-access.json', 'utf8')) as {
   username: string;
   password: string;
@@ -260,7 +260,7 @@ test('shows a loading state until the invitation arrives, with a compact solo gu
   await expect(page.locator('#rsvp .pill')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'می‌آیم', exact: true })).toBeVisible();
   await expect(page.getByText('ترجیح غذایی یا پیامی برای میزبان دارید؟')).toHaveCount(0);
-  await expect(page.locator('.winter-footer')).toContainText('به میزبانی امیر و فی');
+  await expect(page.locator('.winter-footer')).toContainText(`به میزبانی ${partyHosts}`);
 });
 
 test('fills the first screen and keeps candle and steam overlays aligned at every viewport', async ({

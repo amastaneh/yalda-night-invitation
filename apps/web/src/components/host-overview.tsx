@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Check,
   Copy,
-  ExternalLink,
   RefreshCw,
   Search,
   Users,
@@ -17,6 +16,7 @@ import { requestApi } from '@/lib/transport';
 import {
   giftOptions,
   giftDetailLabel,
+  partyHosts,
   type GiftDetails,
 } from '../../../../packages/shared/src/party';
 import type { Attendance, Vehicle } from '../../../../packages/shared/src';
@@ -193,9 +193,6 @@ export function HostOverview({
         >
           {copied === 'all' ? <Check size={16} /> : <Copy size={16} />}کپی همهٔ لینک‌ها
         </button>
-        <a className="host-button" href="/invite/test" target="_blank" rel="noreferrer">
-          دعوت تست امیر و Faye <ExternalLink size={15} />
-        </a>
       </div>
       <div className="host-list-heading">
         <h2>دعوت‌نامه‌های خانواده‌ها</h2>
@@ -257,7 +254,7 @@ export function HostOverview({
           </article>
         ))}
       </div>
-      <footer>به میزبانی امیر و فی · این صفحه فقط برای مشاهده است.</footer>
+      <footer>به میزبانی {partyHosts} · این صفحه فقط برای مشاهده است.</footer>
     </main>
   );
 }

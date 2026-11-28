@@ -16,10 +16,6 @@ export async function api<T>(
   data?: unknown,
   method?: string,
 ): Promise<T> {
-  if (scope === 'guest' && /\/invite\/test\/?$/.test(window.location.pathname)) {
-    const { demoRequest } = await import('./demo');
-    return demoRequest(path, data) as T;
-  }
   if (scope === 'admin' && (API === '/api/party' || new URL(API).hostname === 'script.google.com'))
     throw new Error('مدیریت دعوت‌ها در گوگل‌شیت انجام می‌شود.');
   const endpoint =
