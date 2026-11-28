@@ -330,16 +330,12 @@ export function Invitation({ invitationSlug }: { invitationSlug?: string }) {
           {event.features.gifts && <Gifts data={data} reload={reload} />}
           <section className="winter-bottom winter-width">
             <div id="rsvp" className="winter-rsvp">
-              <span className="winter-eyebrow">
-                01 / {data.members.length > 1 ? 'دعوت خانوادگی' : 'دعوت شما'}
-              </span>
-              <h2>{data.members.length > 1 ? 'لطفاً همه با هم بیایید' : 'لطفاً شما هم بیایید'}</h2>
-              <p className="muted">لطفاً دکمهٔ ثبت را بزنید.</p>
+              <h2>منتظر شما هستیم</h2>
+              <p className="muted">بگید کی میاد تا جاش رو دور میز نگه داریم ❤️</p>
               <Rsvp data={data} onSaved={reload} />
             </div>
             {event.features.hafez && (
               <div id="hafez" className="winter-hafez">
-                <span className="winter-eyebrow">02 / یک نیت، یک غزل</span>
                 <FortuneBook opening={drawing} />
                 <h2>حافظ، برای امروز.</h2>
                 <p className="muted">هر خانواده، هر روز یک فال.</p>

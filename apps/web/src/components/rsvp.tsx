@@ -3,17 +3,11 @@ import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Check, Heart, Plus, Users, ChevronDown } from 'lucide-react';
+import { Check, Heart, Plus, CarFront } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
-import {
-  rsvpSchema,
-  number,
-  type InvitationData,
-  type Attendance,
-} from '../../../../packages/shared/src';
+import { rsvpSchema, type InvitationData, type Attendance } from '../../../../packages/shared/src';
 import { Button } from './ui/button';
-import { householdTitle } from '../../../../packages/shared/src/party';
 type FormValues = z.infer<typeof rsvpSchema>;
 export const attendanceLabels: Record<Attendance, string> = {
   pending: 'هنوز مشخص نیست',
@@ -43,6 +37,8 @@ export function Rsvp({
       vehicle: data.vehicle || null,
     },
   });
+  const memberAnswers = useWatch({ control: form.control, name: 'members' });
+  const hasAnswer = memberAnswers?.some((member) => member.status !== 'pending');
   const vehicle = useWatch({ control: form.control, name: 'vehicle' });
   const closed = data.event.status !== 'open' || Date.parse(data.event.deadline) < currentTime;
   async function submit(values: FormValues) {
@@ -95,18 +91,6 @@ export function Rsvp({
     );
   return (
     <div className="rsvp-card">
-      <div className="rsvp-card-heading">
-        <div>
-          <span className="overline">دعوت‌نامهٔ اختصاصی شما</span>
-          <h3>{householdTitle(data.household.name, data.members.length)}</h3>
-        </div>
-        {data.members.length > 1 && (
-          <span className="pill">
-            <Users size={14} />
-            {number(data.members.length)} نفر
-          </span>
-        )}
-      </div>
       {closed && (
         <div className="notice" role="status">
           مهلت پاسخ‌گویی به پایان رسیده یا رویداد بسته است. برای تغییر با میزبان تماس بگیرید.
@@ -115,53 +99,48 @@ export function Rsvp({
       <form onSubmit={form.handleSubmit(submit)} noValidate>
         <fieldset disabled={closed || form.formState.isSubmitting}>
           <legend className="sr-only">وضعیت حضور اعضای خانواده</legend>
-          <Button
-            type="button"
-            variant="secondary"
-            className="confirm-all"
-            onClick={() =>
-              data.members.forEach((_, i) =>
-                form.setValue(`members.${i}.status`, 'attending', { shouldDirty: true }),
-              )
-            }
-          >
-            <Check size={17} />
-            {data.members.length > 1 ? 'همه با هم می‌آییم' : 'می‌آیم'}
-          </Button>
-          <details className="family-members">
-            <summary>
-              {data.members.length > 1 ? 'پاسخ جداگانه برای اعضای خانواده' : 'وضعیت حضورتان'}
-            </summary>
-            <div className="member-list">
-              {data.members.map((member, index) => (
-                <div className="member-row" key={member.id}>
-                  <label htmlFor={`attendance-${member.id}`}>
-                    <span className="member-avatar">{member.name.slice(0, 1)}</span>
-                    <span>
-                      {member.name}
-                      <small>
-                        {member.kind === 'child' ? 'کودک' : 'بزرگسال'}
-                        {member.isPlusOne ? ' · همراه' : ''}
-                      </small>
-                    </span>
-                  </label>
-                  <div className="select-wrap">
-                    <select
-                      id={`attendance-${member.id}`}
-                      {...form.register(`members.${index}.status`)}
+          <div className="attendance-places">
+            {data.members.map((member, index) => (
+              <fieldset
+                className={`attendance-place is-${memberAnswers?.[index]?.status || 'pending'}`}
+                key={member.id}
+              >
+                <legend>
+                  <span className="attendance-avatar" aria-hidden="true">
+                    {member.name.slice(0, 1)}
+                  </span>
+                  {member.name}
+                </legend>
+                <div className="attendance-answers">
+                  {(
+                    [
+                      { value: 'attending', label: 'می‌آیم', icon: '♡' },
+                      { value: 'maybe', label: 'هنوز معلوم نیست', icon: '…' },
+                      { value: 'declined', label: 'این بار نمی‌رسم', icon: '☾' },
+                    ] as const
+                  ).map((answer) => (
+                    <label
+                      key={answer.value}
+                      className={
+                        memberAnswers?.[index]?.status === answer.value ? 'answer-chosen' : ''
+                      }
                     >
-                      {Object.entries(attendanceLabels).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} />
-                  </div>
+                      <input
+                        type="radio"
+                        value={answer.value}
+                        {...form.register(`members.${index}.status`)}
+                        aria-label={`${member.name}، ${answer.label}`}
+                      />
+                      <span className="answer-symbol" aria-hidden="true">
+                        {answer.icon}
+                      </span>
+                      <span>{answer.label}</span>
+                    </label>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </details>
+              </fieldset>
+            ))}
+          </div>
           <div className="vehicle-form">
             <label className="vehicle-toggle">
               <input
@@ -175,9 +154,10 @@ export function Rsvp({
                   )
                 }
               />
+              <CarFront size={21} aria-hidden="true" />
               با خودرو می‌آییم و پارکینگ نیاز داریم
             </label>
-            <p>برای ثبت پارکینگ، مشخصات خودرو را پیش از مهمانی وارد کنید.</p>
+            <p>برای هماهنگی پارکینگ، مشخصات ماشین رو لازم داریم.</p>
             {vehicle != null && (
               <div className="vehicle-fields">
                 {(
@@ -244,11 +224,19 @@ export function Rsvp({
               </Button>
             </div>
           )}
-          <Button type="submit" className="submit-rsvp" disabled={form.formState.isSubmitting}>
+          <Button
+            type="submit"
+            className="submit-rsvp"
+            disabled={form.formState.isSubmitting || !hasAnswer}
+          >
             {form.formState.isSubmitting ? 'در حال ثبت…' : 'ثبت پاسخ دعوت'}
             <Heart size={18} />
           </Button>
-          <p className="privacy-note">فقط میزبان پاسخ را می‌بیند.</p>
+          <p className="privacy-note">
+            {hasAnswer
+              ? 'بعداً هم می‌تونید پاسخ رو تغییر بدید.'
+              : 'برای هر اسم، یکی از گزینه‌های بالا رو بزنید.'}
+          </p>
         </fieldset>
       </form>
       {data.members.filter((m) => m.isPlusOne).length < data.household.plusOnes && !closed && (

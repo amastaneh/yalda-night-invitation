@@ -2,7 +2,7 @@ import { test, expect, type APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
 import type { InvitationData } from '../../packages/shared/src';
-import { householdTitle, partyHosts } from '../../packages/shared/src/party';
+import { partyHosts } from '../../packages/shared/src/party';
 const access = JSON.parse(readFileSync('.local-access.json', 'utf8')) as {
   username: string;
   password: string;
@@ -64,19 +64,15 @@ test.afterAll(async ({ request }) => {
 test('opens secure invitation, saves partial attendance, edits RSVP without gifting', async ({
   page,
   request,
-}, info) => {
+}) => {
   await page.goto('/invite/?token=' + token);
   await expect(page.getByRole('heading', { name: /بیرون، برف/ })).toBeVisible();
-  await expect(
-    page.getByRole('heading', {
-      name: householdTitle(`خانوادهٔ آزمون ${info.project.name} ${runId}`, 3),
-    }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'منتظر شما هستیم', exact: true })).toBeVisible();
   await expect(page).toHaveURL(/\/invite\/$/);
   const rsvp = page.locator('#rsvp');
-  await rsvp.getByRole('button', { name: 'همه با هم می‌آییم' }).click();
-  await rsvp.getByText('پاسخ جداگانه برای اعضای خانواده', { exact: true }).click();
-  await rsvp.getByRole('combobox').nth(2).selectOption('maybe');
+  await rsvp.getByRole('radio', { name: 'آزاده، می‌آیم', exact: true }).check();
+  await rsvp.getByRole('radio', { name: 'سامان، می‌آیم', exact: true }).check();
+  await rsvp.getByRole('radio', { name: 'باران، هنوز معلوم نیست', exact: true }).check();
   await rsvp.getByRole('button', { name: 'ثبت پاسخ دعوت' }).click();
   await expect(rsvp.getByText('پاسخ شما ثبت شد', { exact: true })).toBeVisible();
   await expect(rsvp.getByRole('heading', { name: 'قرارمان، شب یلدا.' })).toBeVisible();
@@ -87,8 +83,7 @@ test('opens secure invitation, saves partial attendance, edits RSVP without gift
   expect(d.members.map((m) => m.status).sort()).toEqual(['attending', 'attending', 'maybe']);
   expect(d.pledges).toHaveLength(0);
   await rsvp.getByRole('button', { name: 'ویرایش پاسخ' }).click();
-  await rsvp.getByText('پاسخ جداگانه برای اعضای خانواده', { exact: true }).click();
-  await rsvp.getByRole('combobox').nth(1).selectOption('declined');
+  await rsvp.getByRole('radio', { name: 'سامان، این بار نمی‌رسم', exact: true }).check();
   await rsvp.getByRole('button', { name: 'ثبت پاسخ دعوت' }).click();
   await expect(rsvp.getByText('پاسخ شما ثبت شد', { exact: true })).toBeVisible();
   d = (await (await call(request, '/invitation', guestSession)).json()) as InvitationData;
@@ -100,13 +95,17 @@ test('reserves at most two gifts and releases them', async ({ page }) => {
     guestSession,
   );
   await page.goto('/invite/');
+  await page.getByRole('button', { name: 'برگرداندن کارت دسر انار', exact: true }).click();
   await page.getByRole('radio', { name: /انار دانه‌شده/ }).check();
   await page.getByRole('button', { name: 'انتخاب دسر انار', exact: true }).click();
   await expect(
     page.getByRole('button', { name: 'تغییر نظر دربارهٔ دسر انار', exact: true }),
   ).toBeVisible();
+  await page.getByRole('button', { name: 'برگرداندن کارت شیرینی', exact: true }).click();
   await page.getByRole('radio', { name: 'شیرینی زبان نرم', exact: true }).check();
   await page.getByRole('button', { name: 'انتخاب شیرینی', exact: true }).click();
+  await page.getByRole('button', { name: 'برگرداندن کارت کارت هدیه', exact: true }).click();
+  await page.getByRole('button', { name: 'برگرداندن کارت پین شیر و خورشید', exact: true }).click();
   await expect(page.getByRole('button', { name: 'انتخاب کارت هدیه', exact: true })).toBeDisabled();
   await expect(
     page.getByRole('button', { name: 'انتخاب پین شیر و خورشید', exact: true }),

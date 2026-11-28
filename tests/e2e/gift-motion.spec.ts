@@ -6,13 +6,16 @@ test('mobile gift art animates on first appearance and restarts on repeated touc
   page,
 }) => {
   await page.goto(invitationPath);
-  for (const kind of ['pomegranate', 'gift-card', 'pastry', 'pin']) {
+  for (const kind of ['pomegranate', 'pastry', 'gift-card', 'pin']) {
     const card = page.locator(`.gift-${kind}`);
     await card.locator('.gift-object').scrollIntoViewIfNeeded();
     await expect(card).toHaveClass(/gift-animating/);
     for (let touch = 0; touch < 2; touch++) {
       const previousArt = await card.locator('.gift-object > :first-child').elementHandle();
-      await card.getByRole('heading').tap();
+      await card.getByRole('button', { name: /^برگرداندن کارت/ }).tap();
+      await expect(card).toHaveClass(/is-flipped/);
+      await card.getByRole('button', { name: /^برگشت به روی کارت/ }).tap();
+      await expect(card).not.toHaveClass(/is-flipped/);
       await expect.poll(() => previousArt!.evaluate((el) => el.isConnected)).toBe(false);
       await expect(card).toHaveClass(/gift-animating/);
     }

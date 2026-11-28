@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Shuffle, Volume2, VolumeX } from 'lucide-react';
 import { basePath } from '@/lib/api';
+import { mutePartyEffects } from '@/lib/party-sound';
 
 const tracks = [
   { title: 'خونهٔ ما', artist: 'مرجان فرساد', file: 'khooneye-ma.mp3' },
@@ -43,9 +44,11 @@ export function PartyMusic() {
     if (!player) return;
     if (!player.paused) {
       wantsMusic.current = false;
+      mutePartyEffects(true);
       player.pause();
     } else {
       wantsMusic.current = true;
+      mutePartyEffects(false);
       if (failed) player.load();
       setFailed(false);
       void player.play().catch(() => {});
